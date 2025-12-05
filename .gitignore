@@ -12,3 +12,6 @@ desktop.ini
 
 [Tt]emp/
 [Oo]bj/
+
+*.orig
+*.backup

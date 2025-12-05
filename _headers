@@ -1,0 +1,12 @@
+# Brotli compressed files
+/Build/*.br
+  Content-Type: application/octet-stream
+  Content-Encoding: br
+
+# JavaScript files (loader не имеет .br!)
+/Build/7a2dbded24d57e056180125b1583e7c4.loader.js
+  Content-Type: application/javascript
+
+# WASM files
+/Build/*.wasm
+  Content-Type: application/wasm
