@@ -120,32 +120,27 @@ class CustomUI {
     }
     
     waitForUnity() {
-    console.log('Ожидание загрузки Unity...');
-    
-    if (typeof createUnityInstance !== 'undefined') {
+        console.log('Ожидание загрузки Unity...');
+
         const originalCreate = window.createUnityInstance;
-        window.createUnityInstance = function(...args) {
-            console.log('Перехвачено создание Unity instance!');
+        window.createUnityInstance = (...args) => {
             return originalCreate(...args).then(instance => {
-                console.log('Unity instance успешно создан!');
+                console.log('Unity instance создан, сохраняем ссылку.');
                 window.unityInstance = instance;
                 this.unityInstance = instance;
-                this.sendPendingSpeed();
+                this.onUnityReady();
                 return instance;
-            },bind(this));
-        }.bind(this);
-    }
+            }).catch(error => {
+                console.error('Ошибка создания Unity instance:', error);
+            });
+        };
 
-    // Также проверяем, не был ли instance уже создан (на случай перезагрузки)
-    const checkInterval = setInterval(() => {
-        if (window.unityInstance && !this.unityInstance) {
-            console.log('Найден существующий unityInstance');
+        if (window.unityInstance) {
+            console.log('Найден уже существующий Unity instance.');
             this.unityInstance = window.unityInstance;
-            this.sendPendingSpeed();
-            clearInterval(checkInterval);
+            this.onUnityReady();
         }
-    }, 300);
-}
+    }
     
     onUnityReady() {
         console.log('Unity готов! Текущая скорость:', this.currentSpeed);
@@ -159,26 +154,21 @@ class CustomUI {
     }
     
     sendSpeedToUnity(speed) {
-    console.log('Пытаемся отправить скорость:', speed);
-    
-    if (this.unityInstance) {
-        try {
-            // ВАРИАНТ 1: Отправка в "WebCommunicator"
-            this.unityInstance.SendMessage('WebCommunicator', 'SetCubeSpeed', speed);
-            console.log('Сообщение отправлено WebCommunicator');
-            
-            // ВАРИАНТ 2: Отправка в "Cube" (основной объект с CubeManager)
-            this.unityInstance.SendMessage('Cube', 'SetRotationSpeed', speed);
-            console.log('Сообщение отправлено Cube');
-            
-        } catch (error) {
-            console.error('Ошибка SendMessage:', error);
+        console.log('Отправка скорости в Unity:', speed);
+
+        if (this.unityInstance) {
+            try {
+                // Основной вызов: отправка сообщения объекту "Cube"
+                this.unityInstance.SendMessage('Cube', 'SetRotationSpeed', speed);
+                console.log('Сообщение отправлено объекту Cube');
+            } catch (error) {
+                console.error('Ошибка SendMessage:', error);
+            }
+        } else {
+            console.warn('Unity instance еще не готов. Скорость сохранена.');
+            localStorage.setItem('pendingSpeed', speed.toString());
         }
-    } else {
-        console.warn('Unity не готов, сохраняем в localStorage:', speed);
-        localStorage.setItem('pendingSpeed', speed.toString());
     }
-}
 }
 
 // Инициализируем при загрузке страницы
