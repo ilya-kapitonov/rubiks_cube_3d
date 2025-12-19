@@ -159,7 +159,7 @@ class CustomUI {
     sendSpeedToUnity(speed) {
         if (this.unityInstance) {
             // Отправляем в CubeManager
-            this.unityInstance.SendMessage('CubeManager', 'SetRotationSpeed', speed);
+            this.unityInstance.SendMessage('Cube', 'SetRotationSpeed', speed);
         } else {
             console.warn('Unity еще не загружен, сохраняем скорость:', speed);
             localStorage.setItem('pendingSpeed', speed.toString());
