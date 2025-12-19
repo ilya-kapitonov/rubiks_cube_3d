@@ -121,6 +121,12 @@
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
+
+                window.unityInstance = unityInstance;
+                if (window.onUnityReady) {
+                  window.onUnityReady(unityInstance);
+                }
+                
               }).catch((message) => {
                 alert(message);
               });
