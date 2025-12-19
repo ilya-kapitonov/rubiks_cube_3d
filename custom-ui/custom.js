@@ -120,30 +120,32 @@ class CustomUI {
     }
     
     waitForUnity() {
-        // Ждем когда Unity загрузится
-        const checkUnity = setInterval(() => {
-            if (window.unityInstance) {
-                this.unityInstance = window.unityInstance;
-                clearInterval(checkUnity);
-                this.onUnityReady();
-            }
-        }, 100);
-        
-        // Альтернативно: перехватываем createUnityInstance
-        const originalCreateUnityInstance = window.createUnityInstance;
-        if (originalCreateUnityInstance) {
-            window.createUnityInstance = function(...args) {
-                return originalCreateUnityInstance(...args).then(instance => {
-                    window.unityInstance = instance;
-                    if (window.customUI) {
-                        window.customUI.unityInstance = instance;
-                        window.customUI.onUnityReady();
-                    }
-                    return instance;
-                });
-            };
-        }
+    console.log('Ожидание загрузки Unity...');
+    
+    if (typeof createUnityInstance !== 'undefined') {
+        const originalCreate = window.createUnityInstance;
+        window.createUnityInstance = function(...args) {
+            console.log('Перехвачено создание Unity instance!');
+            return originalCreate(...args).then(instance => {
+                console.log('Unity instance успешно создан!');
+                window.unityInstance = instance;
+                this.unityInstance = instance;
+                this.sendPendingSpeed();
+                return instance;
+            },bind(this));
+        }.bind(this);
     }
+
+    // Также проверяем, не был ли instance уже создан (на случай перезагрузки)
+    const checkInterval = setInterval(() => {
+        if (window.unityInstance && !this.unityInstance) {
+            console.log('Найден существующий unityInstance');
+            this.unityInstance = window.unityInstance;
+            this.sendPendingSpeed();
+            clearInterval(checkInterval);
+        }
+    }, 300);
+}
     
     onUnityReady() {
         console.log('Unity готов! Текущая скорость:', this.currentSpeed);
@@ -157,11 +159,26 @@ class CustomUI {
     }
     
     sendSpeedToUnity(speed) {
-        if (this.unityInstance) {
+    console.log('Пытаемся отправить скорость:', speed);
+    
+    if (this.unityInstance) {
+        try {
+            // ВАРИАНТ 1: Отправка в "WebCommunicator"
             this.unityInstance.SendMessage('WebCommunicator', 'SetCubeSpeed', speed);
-            console.log('Скорость отправлена через WebCommunicator');
+            console.log('Сообщение отправлено WebCommunicator');
+            
+            // ВАРИАНТ 2: Отправка в "Cube" (основной объект с CubeManager)
+            this.unityInstance.SendMessage('Cube', 'SetRotationSpeed', speed);
+            console.log('Сообщение отправлено Cube');
+            
+        } catch (error) {
+            console.error('Ошибка SendMessage:', error);
         }
+    } else {
+        console.warn('Unity не готов, сохраняем в localStorage:', speed);
+        localStorage.setItem('pendingSpeed', speed.toString());
     }
+}
 }
 
 // Инициализируем при загрузке страницы
