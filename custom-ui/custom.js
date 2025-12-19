@@ -158,18 +158,8 @@ class CustomUI {
     
     sendSpeedToUnity(speed) {
         if (this.unityInstance) {
-            // Отправляем в CubeManager
-            this.unityInstance.SendMessage('Cube', 'SetRotationSpeed', speed);
-        } else {
-            console.warn('Unity еще не загружен, сохраняем скорость:', speed);
-            localStorage.setItem('pendingSpeed', speed.toString());
-            
-            // Пробуем отправить позже
-            setTimeout(() => {
-                if (this.unityInstance) {
-                    this.sendSpeedToUnity(speed);
-                }
-            }, 1000);
+            this.unityInstance.SendMessage('WebCommunicator', 'SetCubeSpeed', speed);
+            console.log('Скорость отправлена через WebCommunicator');
         }
     }
 }
