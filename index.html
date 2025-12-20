@@ -31,6 +31,7 @@
             <i class="fas fa-bars"></i>
         </button>
         
+        <!-- Боковое меню -->
         <div class="side-menu" id="sideMenu">
             <button class="close-btn" id="closeMenu">
                 <i class="fas fa-times"></i>
@@ -44,24 +45,121 @@
                 <li>E: сбросить</li>
             </ul>
             <div class="menu-section">
-                <h4>Скорость</h4>
-                <div class="speed-control-menu">
-                    <button data-speed="0.5">x0.5</button>
-                    <button data-speed="1" class="active">x1</button>
-                    <button data-speed="1.5">x1.5</button>
-                    <button data-speed="2">x2</button>
+                <h4>Кастомизация кубика</h4>
+                <button class="customization-btn" id="openCustomization">
+                    <i class="fas fa-palette"></i> Открыть настройки
+                </button>
+            </div>
+        </div>
+        
+        <!-- Ползунок скорости -->
+        <div class="speed-slider-container">
+            <span class="speed-label">Скорость вращения:</span>
+            <div class="speed-slider-track">
+                <div class="speed-slider-line"></div>
+                
+                <!-- Маркеры (точки) -->
+                <div class="speed-marker" style="left: 0%;" data-speed="1">
+                    <div class="speed-marker-label">x1</div>
+                </div>
+                <div class="speed-marker" style="left: 33.33%;" data-speed="4">
+                    <div class="speed-marker-label">x4</div>
+                </div>
+                <div class="speed-marker" style="left: 66.66%;" data-speed="8">
+                    <div class="speed-marker-label">x8</div>
+                </div>
+                <div class="speed-marker" style="left: 100%;" data-speed="12">
+                    <div class="speed-marker-label">x12</div>
+                </div>
+                
+                <!-- Ползунок -->
+                <div class="speed-thumb" style="left: 0%;"></div>
+            </div>
+            <div class="speed-values">
+                <span>Очень медленно</span>
+                <span>Быстро</span>
+                <span>Очень быстро</span>
+                <span>Максимум</span>
+            </div>
+        </div>
+        
+        <!-- Модальное окно кастомизации -->
+        <div class="customization-modal" id="customizationModal">
+            <div class="modal-header">
+                <h3>Кастомизация кубика</h3>
+                <button class="close-modal" id="closeCustomization">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="color-presets">
+                <button class="color-preset-btn active" data-preset="classic">
+                    <i class="fas fa-cube"></i> Классический
+                </button>
+                <button class="color-preset-btn" data-preset="pastel">
+                    <i class="fas fa-cloud"></i> Пастельный
+                </button>
+                <button class="color-preset-btn" data-preset="neon">
+                    <i class="fas fa-bolt"></i> Неоновый
+                </button>
+                <button class="color-preset-btn" data-preset="monochrome">
+                    <i class="fas fa-moon"></i> Монохромный
+                </button>
+            </div>
+            
+            <button class="custom-scheme-btn" id="toggleCustomScheme">
+                <i class="fas fa-paint-brush"></i> Своя цветовая схема
+            </button>
+            
+            <!-- Развертка кубика -->
+            <div class="cube-net" id="cubeNet">
+                <div class="net-face" data-face="up">
+                    Верх
+                    <div class="net-face-label">Вверх</div>
+                </div>
+                <div class="net-face" style="grid-column: 2 / span 2; grid-row: 1;" data-face="front">
+                    Перед
+                    <div class="net-face-label">Перед</div>
+                </div>
+                <div class="net-face" data-face="down">
+                    Низ
+                    <div class="net-face-label">Вниз</div>
+                </div>
+                
+                <div class="net-face" data-face="left">
+                    Лево
+                    <div class="net-face-label">Лево</div>
+                </div>
+                <div class="net-face" data-face="back">
+                    Зад
+                    <div class="net-face-label">Зад</div>
+                </div>
+                <div class="net-face" data-face="right">
+                    Право
+                    <div class="net-face-label">Право</div>
                 </div>
             </div>
         </div>
         
-        <!-- Панель скорости (внизу) -->
-        <div class="speed-panel" id="speedPanel">
-            <span class="speed-label">Скорость:</span>
-            <div class="speed-options">
-                <button class="speed-btn" data-speed="0.5">Очень медленно</button>
-                <button class="speed-btn active" data-speed="1.0">Нормально</button>
-                <button class="speed-btn" data-speed="1.5">Быстро</button>
-                <button class="speed-btn" data-speed="2.0">Очень быстро</button>
+        <!-- Модальное окно выбора цвета -->
+        <div class="color-picker-modal" id="colorPickerModal">
+            <div class="modal-header">
+                <h3>Выберите цвет</h3>
+                <button class="close-modal" id="closeColorPicker">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="color-wheel" id="colorWheel"></div>
+            <div class="color-preview" id="colorPreview"></div>
+            
+            <div class="color-picker-controls">
+                <button class="color-picker-btn btn-ok" id="applyColor">
+                    Применить
+                </button>
+                <button class="color-picker-btn btn-cancel" id="cancelColorPicker">
+                    Отмена
+                </button>
             </div>
         </div>
     </div>
