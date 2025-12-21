@@ -25,6 +25,7 @@ body {
     min-height: 100vh;
     position: relative;
     padding: 20px;
+    padding-bottom: 100px;
 }
 
 /* ЛЕВАЯ ПАНЕЛЬ */
@@ -61,7 +62,6 @@ body {
     flex-direction: column;
     gap: 20px;
     position: relative;
-    min-height: 500px;
 }
 
 #unity-container {
@@ -80,20 +80,21 @@ body {
 
 /* ===== ПАНЕЛЬ СКОРОСТИ ===== */
 .speed-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 12px 20px;
-    border-radius: 12px;
-    border: 1px solid rgba(67, 97, 238, 0.3);
-    backdrop-filter: blur(10px);
-    min-width: 300px;
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(67, 97, 238, 0.3);
+    backdrop-filter: blur(10px);
+    min-width: 320px;
+    z-index: 100;
 }
 
 .speed-label {
@@ -103,6 +104,7 @@ body {
     font-size: 14px;
     color: #4cc9f0;
     font-weight: 600;
+    margin-bottom: 5px;
 }
 
 .speed-label i {
@@ -111,56 +113,67 @@ body {
 
 .speed-dots {
     display: flex;
-    gap: 15px;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.speed-dots::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(76, 201, 240, 0.3);
+    transform: translateY(-50%);
+    z-index: 1;
 }
 
 .speed-dot {
-    width: 45px;
-    height: 45px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    z-index: 2;
 }
 
 .speed-dot:hover {
     transform: scale(1.1);
-    border-color: rgba(76, 201, 240, 0.5);
-    background: rgba(76, 201, 240, 0.1);
+    border-color: rgba(76, 201, 240, 0.7);
+    background: rgba(76, 201, 240, 0.15);
 }
 
 .speed-dot.active {
     background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     border-color: #4cc9f0;
-    box-shadow: 0 0 15px rgba(76, 201, 240, 0.6);
+    box-shadow: 0 0 10px rgba(76, 201, 240, 0.8);
+    transform: scale(1.1);
 }
 
 .dot-number {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     color: white;
 }
 
-/* Подсказки при наведении */
-.speed-dot:hover::after {
-    content: attr(title);
+.speed-dot::after {
+    content: attr(data-label);
     position: absolute;
-    bottom: 100%;
+    top: calc(100% + 5px);
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 12px;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
     white-space: nowrap;
-    margin-bottom: 5px;
-    z-index: 10;
 }
 
 /* Кнопка меню */
@@ -814,7 +827,7 @@ body {
         flex-direction: column;
         justify-content: flex-start;
         padding-top: 80px;
-        padding-bottom: 100px;
+        padding-bottom: 120px;
     }
     
     .left-panel {
@@ -875,17 +888,17 @@ body {
     }
     
     .speed-panel {
-        min-width: 250px;
-        padding: 10px 15px;
+        min-width: 280px;
+        padding: 12px 20px;
     }
     
     .speed-dot {
-        width: 35px;
-        height: 35px;
+        width: 30px;
+        height: 30px;
     }
     
     .dot-number {
-        font-size: 11px;
+        font-size: 10px;
     }
 }
 
@@ -924,21 +937,25 @@ body {
     }
     
     .speed-panel {
-        min-width: 220px;
-        padding: 8px 12px;
+        min-width: 240px;
+        padding: 10px 15px;
     }
     
     .speed-dots {
-        gap: 8px;
+        gap: 20px;
     }
-    
+
     .speed-dot {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
     }
     
     .dot-number {
-        font-size: 10px;
+        font-size: 9px;
+    }
+
+    .speed-dot::after {
+        font-size: 9px;
     }
     
     .overlay-window {

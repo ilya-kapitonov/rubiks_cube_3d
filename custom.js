@@ -648,11 +648,11 @@ class CustomUI {
         
         this.currentSpeed = speed;
         
-        // Обновляем UI
-        document.querySelectorAll('.speed-option').forEach(option => {
-            option.classList.remove('active');
+        // Обновляем UI точек
+        document.querySelectorAll('.speed-dot').forEach(dot => {
+            dot.classList.remove('active');
         });
-        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
+        document.querySelector(`.speed-dot[data-speed="${speed}"]`)?.classList.add('active');
         
         // Отправляем в Unity
         if (this.isReady) {
@@ -663,6 +663,9 @@ class CustomUI {
         this.saveSettings();
         
         console.log(`Установлена скорость: x${speed}`);
+        
+        // Явно обновляем точки скорости
+        this.updateSpeedDots();
     }
 }
 
