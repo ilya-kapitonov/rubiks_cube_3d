@@ -5,9 +5,28 @@ class CustomUI {
         
         console.log("CustomUI создан");
         
+        // Настройки по умолчанию
+        this.currentAlgorithm = 0; // 0 = Быстрый, 1 = Простой
+        this.currentSpeed = 1;
+        this.currentColorScheme = 'classic';
+        this.isAutoSolving = false;
+        this.menuOpen = false;
+        
+        // Статистика
+        this.gameStats = {
+            totalSolves: 0,
+            bestTime: 0,
+            totalMoves: 0,
+            bestRecords: []
+        };
+        
+        // Загрузка сохраненных данных
+        this.loadSettings();
+        this.loadStats();
+        
         // Ждем Unity
         window.onUnityReady = (instance) => {
-            console.log("✓ Unity instance получен");
+            console.log("Unity instance получен");
             this.unityInstance = instance;
             
             // Ждем 1 секунду перед любыми вызовами
@@ -16,62 +35,76 @@ class CustomUI {
                 console.log("=== СИСТЕМА ГОТОВА ===");
                 console.log("Можно использовать кнопки управления");
                 
+                // Применяем сохраненные настройки
+                this.applySavedSettings();
+                
                 // Устанавливаем начальную скорость
-                this.sendToUnity('SetCubeSpeed', 1);
+                this.sendToUnity('SetCubeSpeed', this.currentSpeed);
+                
             }, 1000);
         };
         
         this.init();
-
-         this.gameStats = {
-            totalSolves: 0,
-            totalPlayTime: 0,
-            bestRecords: []
-        };
-        
-        this.loadStats();
     }
     
     init() {
         console.log("Инициализация UI...");
         
-        // Инициализация переключателя режимов
+        // Инициализация всех компонентов
         this.setupModeSelector();
-        
-        // Инициализация кнопок управления
         this.setupControlButtons();
+        this.setupMenu();
+        this.updateStatsDisplay();
         
         console.log("UI инициализирован ✓");
     }
     
+    // ===== РЕЖИМЫ (A/P) =====
     setupModeSelector() {
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                const oldMode = this.getCurrentMode();
+                const newMode = e.currentTarget.dataset.mode;
+                
+                // Снимаем активный класс со всех
                 document.querySelectorAll('.mode-btn').forEach(b => {
                     b.classList.remove('active');
                 });
+                // Добавляем активный класс выбранному
                 e.currentTarget.classList.add('active');
                 
-                const mode = e.currentTarget.dataset.mode;
-                console.log(`Выбран режим: ${mode}`);
+                console.log(`Режим изменен: ${oldMode} → ${newMode}`);
                 
-                // Здесь можно добавить логику для разных режимов
-                if (mode === 'auto') {
-                    console.log("Режим автоматической сборки");
-                } else if (mode === 'manual') {
-                    console.log("Режим ручной сборки");
-                }
+                // Обработка смены режима
+                this.handleModeChange(oldMode, newMode);
             });
         });
     }
     
+    getCurrentMode() {
+        const activeBtn = document.querySelector('.mode-btn.active');
+        return activeBtn ? activeBtn.dataset.mode : 'manual';
+    }
+    
+    handleModeChange(oldMode, newMode) {
+        // Если переключаемся из авторежима в ручной - останавливаем автосборку
+        if (oldMode === 'auto' && newMode === 'manual') {
+            this.stopAutoSolve();
+        }
+        // Если переключаемся из ручного в авторежим - запускаем автосборку
+        else if (oldMode === 'manual' && newMode === 'auto') {
+            this.startAutoSolve();
+        }
+    }
+    
+    // ===== КНОПКИ УПРАВЛЕНИЯ =====
     setupControlButtons() {
         // Кнопка перемешивания
         document.getElementById('shuffleBtn')?.addEventListener('click', () => {
             this.shuffleCube();
         });
         
-        // Кнопка отмены (шаг назад)
+        // Кнопка отмены
         document.getElementById('undoBtn')?.addEventListener('click', () => {
             this.undoMove();
         });
@@ -81,24 +114,180 @@ class CustomUI {
             this.showHint();
         });
         
-        // Кнопка меню (пока только логирование)
-        document.getElementById('menuToggle')?.addEventListener('click', () => {
-            console.log("Меню открыто");
-            // TODO: Реализовать открытие меню
-        });
-
-         document.getElementById('saveBtn')?.addEventListener('click', () => {
+        // Кнопки сохранения/загрузки
+        document.getElementById('saveBtn')?.addEventListener('click', () => {
             this.saveCurrentState();
         });
         
-        // Новая кнопка загрузки
         document.getElementById('loadBtn')?.addEventListener('click', () => {
             this.loadSavedState();
         });
     }
     
-    // ===== ОСНОВНЫЕ МЕТОДЫ =====
+    // ===== МЕНЮ =====
+    setupMenu() {
+        const menuToggle = document.getElementById('menuToggle');
+        const menuCloseBtn = document.getElementById('menuCloseBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const sideMenu = document.getElementById('sideMenu');
+        
+        // Открытие/закрытие меню
+        menuToggle?.addEventListener('click', () => {
+            this.toggleMenu();
+        });
+        
+        menuCloseBtn?.addEventListener('click', () => {
+            this.closeMenu();
+        });
+        
+        menuOverlay?.addEventListener('click', () => {
+            this.closeMenu();
+        });
+        
+        // Цветовые схемы
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const scheme = e.currentTarget.dataset.scheme;
+                this.setColorScheme(scheme);
+            });
+        });
+        
+        // Алгоритмы сборки
+        document.querySelectorAll('.algorithm-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const algorithm = parseInt(e.currentTarget.dataset.algorithm);
+                this.setAlgorithm(algorithm);
+            });
+        });
+        
+        // Скорость вращения
+        document.querySelectorAll('.speed-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const speed = parseFloat(e.currentTarget.dataset.speed);
+                this.setSpeed(speed);
+            });
+        });
+        
+        // Кнопки меню
+        document.getElementById('clearStatsBtn')?.addEventListener('click', () => {
+            this.clearStats();
+        });
+        
+        document.getElementById('helpBtn')?.addEventListener('click', () => {
+            this.showHelp();
+        });
+    }
     
+    toggleMenu() {
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        
+        this.menuOpen = !this.menuOpen;
+        
+        if (this.menuOpen) {
+            sideMenu.classList.add('open');
+            menuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            this.closeMenu();
+        }
+    }
+    
+    closeMenu() {
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        
+        this.menuOpen = false;
+        sideMenu.classList.remove('open');
+        menuOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // ===== НАСТРОЙКИ =====
+    setColorScheme(scheme) {
+        this.currentColorScheme = scheme;
+        
+        // Обновляем UI
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.color-option[data-scheme="${scheme}"]`)?.classList.add('active');
+        
+        // Отправляем в Unity
+        if (this.isReady) {
+            this.sendToUnity('ApplyColorPreset', scheme);
+        }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлена цветовая схема: ${scheme}`);
+    }
+    
+    setAlgorithm(algorithm) {
+        this.currentAlgorithm = algorithm;
+        
+        // Обновляем UI
+        document.querySelectorAll('.algorithm-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.algorithm-option[data-algorithm="${algorithm}"]`)?.classList.add('active');
+        
+        // Если в авторежиме и идет сборка - перезапускаем с новым алгоритмом
+        if (this.getCurrentMode() === 'auto' && this.isAutoSolving) {
+            this.stopAutoSolve();
+            setTimeout(() => this.startAutoSolve(), 500);
+        }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлен алгоритм: ${algorithm === 0 ? 'Быстрый' : 'Простой'}`);
+    }
+    
+    setSpeed(speed) {
+        this.currentSpeed = speed;
+        
+        // Обновляем UI
+        document.querySelectorAll('.speed-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
+        
+        // Отправляем в Unity
+        if (this.isReady) {
+            this.sendToUnity('SetCubeSpeed', speed);
+        }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлена скорость: x${speed}`);
+    }
+    
+    // ===== АВТОСБОРКА =====
+    startAutoSolve() {
+        if (!this.isReady) {
+            console.warn("Система не готова");
+            return;
+        }
+        
+        console.log(`Запуск автосборки алгоритмом: ${this.currentAlgorithm === 0 ? 'Быстрый' : 'Простой'}`);
+        this.sendToUnity('StartAutoSolve', this.currentAlgorithm);
+        this.isAutoSolving = true;
+    }
+    
+    stopAutoSolve() {
+        if (!this.isReady || !this.isAutoSolving) {
+            return;
+        }
+        
+        console.log("Остановка автосборки");
+        this.sendToUnity('StopAutoSolve');
+        this.isAutoSolving = false;
+    }
+    
+    // ===== ОСНОВНЫЕ МЕТОДЫ =====
     shuffleCube() {
         if (!this.isReady) {
             console.warn("Система ещё не готова");
@@ -108,11 +297,6 @@ class CustomUI {
         if (confirm('Перемешать кубик? Текущий прогресс будет сброшен.')) {
             console.log("Начинаем перемешивание...");
             this.sendToUnity('ShuffleCube');
-            
-            // Очищаем историю ходов после перемешивания
-            this.moveHistory = [];
-            this.currentMoveIndex = -1;
-            console.log("История ходов очищена");
         }
     }
     
@@ -124,9 +308,6 @@ class CustomUI {
         
         console.log("Отмена последнего хода...");
         this.sendToUnity('UndoMove');
-        
-        // Обновляем интерфейс
-        this.updateStatsDisplay();
     }
     
     showHint() {
@@ -135,15 +316,141 @@ class CustomUI {
             return;
         }
         
-        console.log("Показать подсказку");
-        
-        // TODO: Реализовать подсказку
-        // Временное сообщение
-        alert("Функция подсказки будет реализована в следующей версии");
+        if (this.getCurrentMode() === 'auto') {
+            // В авторежиме - запрашиваем подсказку из Unity
+            this.sendToUnity('GetNextHint');
+        } else {
+            // В ручном режиме - временное сообщение
+            alert("В ручном режиме подсказки пока не реализованы");
+        }
     }
     
-    // ===== УТИЛИТЫ =====
+    saveCurrentState() {
+        if (!this.isReady) return;
+        
+        if (confirm('Сохранить текущее состояние кубика?')) {
+            this.sendToUnity('SaveCubeState');
+            console.log("Сохранение инициировано");
+        }
+    }
     
+    loadSavedState() {
+        const state = localStorage.getItem("rubiks_cube_last_state");
+        if (state) {
+            if (confirm('Загрузить сохраненное состояние? Текущий прогресс будет потерян.')) {
+                this.sendToUnity("LoadCubeState", state);
+            }
+        } else {
+            alert("Нет сохраненных состояний");
+        }
+    }
+    
+    // ===== СТАТИСТИКА =====
+    updateStatsDisplay() {
+        document.getElementById('totalSolves').textContent = this.gameStats.totalSolves;
+        document.getElementById('bestTime').textContent = this.formatTime(this.gameStats.bestTime);
+        document.getElementById('totalMoves').textContent = this.gameStats.totalMoves;
+    }
+    
+    formatTime(seconds) {
+        if (seconds === 0) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    
+    clearStats() {
+        if (confirm("Очистить всю статистику?")) {
+            this.gameStats = {
+                totalSolves: 0,
+                bestTime: 0,
+                totalMoves: 0,
+                bestRecords: []
+            };
+            this.updateStatsDisplay();
+            this.saveStats();
+            console.log("Статистика очищена");
+        }
+    }
+    
+    showHelp() {
+        alert("Справка будет реализована в следующей версии");
+    }
+    
+    // ===== СОХРАНЕНИЕ/ЗАГРУЗКА ДАННЫХ =====
+    saveSettings() {
+        const settings = {
+            algorithm: this.currentAlgorithm,
+            speed: this.currentSpeed,
+            colorScheme: this.currentColorScheme
+        };
+        
+        try {
+            localStorage.setItem('rubiks_cube_settings', JSON.stringify(settings));
+            console.log("Настройки сохранены");
+        } catch (e) {
+            console.error("Ошибка сохранения настроек:", e);
+        }
+    }
+    
+    loadSettings() {
+        try {
+            const settings = localStorage.getItem('rubiks_cube_settings');
+            if (settings) {
+                const parsed = JSON.parse(settings);
+                this.currentAlgorithm = parsed.algorithm || 0;
+                this.currentSpeed = parsed.speed || 1;
+                this.currentColorScheme = parsed.colorScheme || 'classic';
+                console.log("Настройки загружены:", parsed);
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки настроек:", e);
+        }
+    }
+    
+    saveStats() {
+        try {
+            localStorage.setItem('rubiks_cube_stats', JSON.stringify(this.gameStats));
+            console.log("Статистика сохранена");
+        } catch (e) {
+            console.error("Ошибка сохранения статистики:", e);
+        }
+    }
+    
+    loadStats() {
+        try {
+            const stats = localStorage.getItem('rubiks_cube_stats');
+            if (stats) {
+                this.gameStats = JSON.parse(stats);
+                console.log("Статистика загружена");
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки статистики:", e);
+        }
+    }
+    
+    applySavedSettings() {
+        // Применяем цветовую схему
+        this.sendToUnity('ApplyColorPreset', this.currentColorScheme);
+        
+        // Обновляем UI
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.color-option[data-scheme="${this.currentColorScheme}"]`)?.classList.add('active');
+        
+        document.querySelectorAll('.algorithm-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.algorithm-option[data-algorithm="${this.currentAlgorithm}"]`)?.classList.add('active');
+        
+        document.querySelectorAll('.speed-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.speed-option[data-speed="${this.currentSpeed}"]`)?.classList.add('active');
+    }
+    
+    // ===== КОММУНИКАЦИЯ С UNITY =====
     sendToUnity(method, parameter = '') {
         if (!this.isReady) {
             console.error(`⚠ Не готово! Ждем инициализации Unity. Метод: ${method}`);
@@ -168,104 +475,24 @@ class CustomUI {
             console.error(`✗ Ошибка SendMessage:`, error);
         }
     }
-    
-    // Метод для тестирования из консоли
-    testSpeed(speed) {
-        this.sendToUnity('SetCubeSpeed', speed);
-    }
-    
-    testColors(preset) {
-        this.sendToUnity('ApplyColorPreset', preset);
-    }
-
-    saveCubeState(state) {
-        try {
-            localStorage.setItem('rubiks_cube_last_state', state);
-            console.log("Состояние сохранено в localStorage");
-        } catch (e) {
-            console.error("Ошибка сохранения:", e);
-        }
-    }
-    
-    loadCubeState() {
-        try {
-            const state = localStorage.getItem('rubiks_cube_last_state');
-            if (state) {
-                console.log("Загружено сохраненное состояние");
-                // TODO: Отправить в Unity для восстановления
-                return state;
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки:", e);
-        }
-        return null;
-    }
-    
-    saveStats() {
-        try {
-            localStorage.setItem('rubiks_cube_stats', JSON.stringify(this.gameStats));
-            console.log("Статистика сохранена");
-        } catch (e) {
-            console.error("Ошибка сохранения статистики:", e);
-        }
-    }
-    
-    loadStats() {
-        try {
-            const stats = localStorage.getItem('rubiks_cube_stats');
-            if (stats) {
-                this.gameStats = JSON.parse(stats);
-                console.log("Статистика загружена:", this.gameStats);
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки статистики:", e);
-        }
-    }
-    
-    saveSettings(settings) {
-        try {
-            localStorage.setItem('rubiks_cube_settings', JSON.stringify(settings));
-            console.log("Настройки сохранены");
-        } catch (e) {
-            console.error("Ошибка сохранения настроек:", e);
-        }
-    }
-    
-    loadSettings() {
-        try {
-            const settings = localStorage.getItem('rubiks_cube_settings');
-            if (settings) {
-                return JSON.parse(settings);
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки настроек:", e);
-        }
-        return null;
-    }
-
-    saveCurrentState() {
-        if (!this.isReady) return;
-        
-        if (confirm('Сохранить текущее состояние кубика?')) {
-            // Сохраняем в Unity, затем в localStorage через callback
-            this.sendToUnity('SaveCubeState');
-            console.log("Сохранение инициировано");
-        }
-    }
-    
-    loadSavedState() {
-        const state = localStorage.getItem("rubiks_cube_last_state");
-        if (state) {
-            this.sendToUnity("LoadCubeState", state);
-        }
-    }
-    updateStatsDisplay() {
-        // Обновляем отображение статистики в интерфейсе
-        // TODO: Добавить элементы для отображения
-    }
 }
 
-// Глобальные функции для консоли
+// ===== ГЛОБАЛЬНЫЕ ФУНКЦИИ =====
+
+// Для сохранения состояния из Unity
+window.saveCubeState = function(json) {
+    localStorage.setItem("rubiks_cube_last_state", json);
+    console.log("Состояние сохранено в localStorage");
+    alert("✅ Состояние сохранено!");
+};
+
+// Для подсказок из Unity
+window.showHint = function(hintText) {
+    console.log(`Подсказка от Unity: ${hintText}`);
+    alert(`Следующий ход: ${hintText}`);
+};
+
+// Тестовые функции для консоли
 window.testUnity = function() {
     console.log("=== ТЕСТ ПОДКЛЮЧЕНИЯ ===");
     
@@ -287,10 +514,15 @@ window.testUnity = function() {
     console.log("✓ Система готова к работе");
 };
 
-// Глобальные утилиты для отладки
-window.saveCurrentCube = function() {
+window.testSpeed = function(speed) {
     if (window.customUI) {
-        window.customUI.saveCurrentState();
+        window.customUI.setSpeed(speed);
+    }
+};
+
+window.testColors = function(scheme) {
+    if (window.customUI) {
+        window.customUI.setColorScheme(scheme);
     }
 };
 
@@ -303,17 +535,6 @@ window.clearAllData = function() {
     }
 };
 
-window.showStats = function() {
-    if (window.customUI) {
-        console.log("Текущая статистика:", window.customUI.gameStats);
-        const saved = localStorage.getItem('rubiks_cube_stats');
-        console.log("В localStorage:", saved ? JSON.parse(saved) : "нет данных");
-    }
-};
-
-window.saveCubeState = function (json) {
-    localStorage.setItem("rubiks_cube_last_state", json);
-};
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM загружен");

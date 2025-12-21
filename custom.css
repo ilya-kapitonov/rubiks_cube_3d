@@ -16,7 +16,7 @@ body {
     align-items: center;
 }
 
-/* Основной контейнер - теперь центрируем всё */
+/* Основной контейнер */
 .app-container {
     display: flex;
     align-items: center;
@@ -27,7 +27,7 @@ body {
     padding: 20px;
 }
 
-/* ЛЕВАЯ ПАНЕЛЬ - фиксированная слева от центра */
+/* ЛЕВАЯ ПАНЕЛЬ */
 .left-panel {
     position: absolute;
     left: 20px;
@@ -39,7 +39,7 @@ body {
     z-index: 100;
 }
 
-/* ПРАВАЯ ПАНЕЛЬ - фиксированная справа от центра */
+/* ПРАВАЯ ПАНЕЛЬ */
 .right-panel {
     position: absolute;
     right: 20px;
@@ -51,7 +51,7 @@ body {
     z-index: 100;
 }
 
-/* Центральная область для кубика - строго по центру */
+/* Центральная область для кубика */
 .unity-center {
     display: flex;
     align-items: center;
@@ -88,6 +88,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 101;
 }
 
 .hamburger-btn:hover {
@@ -184,9 +185,324 @@ body {
     background: linear-gradient(135deg, #ff9e00 0%, #ff9100 100%);
 }
 
+.save-btn {
+    background: linear-gradient(135deg, #7209b7 0%, #560bad 100%);
+}
+
+.load-btn {
+    background: linear-gradient(135deg, #f8961e 0%, #f3722c 100%);
+}
+
+/* ===== ВЫДВИЖНОЕ МЕНЮ ===== */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -350px;
+    width: 320px;
+    height: 100vh;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.side-menu.open {
+    left: 0;
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.menu-overlay.active {
+    display: block;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(76, 201, 240, 0.3);
+}
+
+.menu-header h3 {
+    font-size: 20px;
+    color: #4cc9f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.menu-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
+}
+
+.menu-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-section h4 {
+    font-size: 16px;
+    color: #4cc9f0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Цветовые схемы */
+.color-schemes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.color-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.color-option.active {
+    background: rgba(76, 201, 240, 0.2);
+    box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
+}
+
+.color-option:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.color-preview {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.color-preview.classic {
+    background: conic-gradient(
+        #ffffff 0deg 60deg,
+        #ffff00 60deg 120deg,
+        #0000ff 120deg 180deg,
+        #00ff00 180deg 240deg,
+        #ff0000 240deg 300deg,
+        #ff8800 300deg 360deg
+    );
+}
+
+.color-preview.bright_pastel {
+    background: conic-gradient(
+        #fff5f5 0deg 60deg,
+        #fff5c8 60deg 120deg,
+        #c8e6ff 120deg 180deg,
+        #c8ffc8 180deg 240deg,
+        #ffc8ff 240deg 300deg,
+        #ffd9c8 300deg 360deg
+    );
+}
+
+.color-preview.neon {
+    background: conic-gradient(
+        #ffffff 0deg 60deg,
+        #ffff00 60deg 120deg,
+        #00ffff 120deg 180deg,
+        #00ff00 180deg 240deg,
+        #ff00ff 240deg 300deg,
+        #ff0000 300deg 360deg
+    );
+}
+
+.color-preview.monochrome {
+    background: conic-gradient(
+        #f0f0f0 0deg 60deg,
+        #d0d0d0 60deg 120deg,
+        #b0b0b0 120deg 180deg,
+        #909090 180deg 240deg,
+        #707070 240deg 300deg,
+        #505050 300deg 360deg
+    );
+}
+
+.color-option span {
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Алгоритмы сборки */
+.algorithm-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.algorithm-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.algorithm-option.active {
+    background: rgba(76, 201, 240, 0.2);
+    box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
+}
+
+.algorithm-option:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.algorithm-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+}
+
+.algorithm-option span {
+    font-size: 14px;
+    flex: 1;
+}
+
+/* Скорость вращения */
+.speed-control {
+    display: flex;
+    gap: 10px;
+}
+
+.speed-option {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.speed-option.active {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    box-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
+}
+
+.speed-option:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Статистика */
+.stats-display {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-item span:first-child {
+    color: #4cc9f0;
+}
+
+.stat-item span:last-child {
+    font-weight: 600;
+}
+
+/* Кнопки меню */
+.menu-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(67, 97, 238, 0.3);
+    border: 2px solid rgba(67, 97, 238, 0.5);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.menu-btn:hover {
+    background: rgba(67, 97, 238, 0.5);
+    transform: translateY(-2px);
+}
+
+.help-btn {
+    background: rgba(255, 158, 0, 0.3);
+    border-color: rgba(255, 158, 0, 0.5);
+}
+
+.help-btn:hover {
+    background: rgba(255, 158, 0, 0.5);
+}
+
+.menu-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Адаптивность */
 @media (max-width: 1100px) {
-    /* На планшетах уменьшаем расстояние */
     .left-panel {
         left: 10px;
     }
@@ -194,10 +510,14 @@ body {
     .right-panel {
         right: 10px;
     }
+    
+    .side-menu {
+        width: 280px;
+        left: -280px;
+    }
 }
 
 @media (max-width: 900px) {
-    /* На мобильных делаем панели сверху и снизу */
     .app-container {
         flex-direction: column;
         justify-content: flex-start;
@@ -232,6 +552,8 @@ body {
         padding: 10px;
         border-radius: 15px;
         z-index: 1000;
+        flex-wrap: wrap;
+        justify-content: center;
     }
     
     .mode-selector {
@@ -283,5 +605,10 @@ body {
         width: 45px;
         height: 45px;
         font-size: 18px;
+    }
+    
+    .side-menu {
+        width: 100%;
+        left: -100%;
     }
 }
