@@ -311,9 +311,10 @@ window.saveCurrentCube = function() {
     }
 };
 
-window.loadSavedCube = function() {
-    if (window.customUI) {
-        window.customUI.loadSavedState();
+window.loadCubeState = function () {
+    const state = localStorage.getItem("rubiks_cube_state");
+    if (state) {
+        SendMessage("CubeManager", "LoadCubeState", state);
     }
 };
 
@@ -334,6 +335,10 @@ window.showStats = function() {
     }
 };
 
+window.saveCubeState = function (json) {
+    localStorage.setItem("rubiks_cube_state", json);
+    console.log("Cube state saved:", json);
+};
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM загружен");
