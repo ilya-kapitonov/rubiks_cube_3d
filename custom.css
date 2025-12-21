@@ -13,26 +13,56 @@ body {
     overflow-x: hidden;
 }
 
+/* Основной контейнер с фиксированными панелями */
 .app-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    padding: 20px;
-    gap: 40px;
+    position: relative;
 }
 
-/* Панели */
+/* ЛЕВАЯ ПАНЕЛЬ - фиксированная */
 .left-panel {
+    position: fixed;
+    top: 30px;
+    left: 30px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    z-index: 100;
 }
 
+/* ПРАВАЯ ПАНЕЛЬ - фиксированная */
 .right-panel {
+    position: fixed;
+    top: 30px;
+    right: 30px;
     display: flex;
     flex-direction: column;
     gap: 15px;
+    z-index: 100;
+}
+
+/* Центральная область для кубика */
+.unity-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+#unity-container {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+}
+
+#unity-canvas {
+    width: 400px !important;
+    height: 400px !important;
+    display: block;
+    background: transparent !important;
 }
 
 /* Кнопка меню */
@@ -86,6 +116,11 @@ body {
     box-shadow: 0 0 25px rgba(76, 201, 240, 0.6);
 }
 
+.mode-btn:hover:not(.active) {
+    border-color: rgba(76, 201, 240, 0.7);
+    background: rgba(76, 201, 240, 0.1);
+}
+
 .mode-btn i {
     font-size: 20px;
     margin-bottom: 4px;
@@ -94,27 +129,6 @@ body {
 .mode-label {
     font-size: 14px;
     font-weight: bold;
-}
-
-/* Центр: Unity */
-.unity-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#unity-container {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
-}
-
-#unity-canvas {
-    width: 500px !important;
-    height: 500px !important;
-    display: block;
-    background: transparent !important;
 }
 
 /* Кнопки управления справа */
@@ -145,28 +159,59 @@ body {
     font-size: 22px;
 }
 
-/* Адаптивность */
-@media (max-width: 1100px) {
-    .app-container {
-        flex-direction: column;
-        gap: 30px;
-    }
-    
-    .left-panel, .right-panel {
-        flex-direction: row;
-        gap: 20px;
-    }
-    
-    #unity-canvas {
-        width: 400px !important;
-        height: 400px !important;
-    }
+.control-btn:active {
+    transform: translateY(-1px);
 }
 
-@media (max-width: 600px) {
+/* Стили для разных кнопок */
+.shuffle-btn {
+    background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
+}
+
+.undo-btn {
+    background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);
+}
+
+.hint-btn {
+    background: linear-gradient(135deg, #ff9e00 0%, #ff9100 100%);
+}
+
+/* Адаптивность */
+@media (max-width: 900px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    /* На мобильных делаем панели абсолютными поверх кубика */
+    .left-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .right-panel {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .mode-selector {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .unity-center {
+        padding-top: 80px; /* Отступ для кнопок */
+        padding-bottom: 20px;
+    }
+    
     #unity-canvas {
-        width: 300px !important;
-        height: 300px !important;
+        width: 350px !important;
+        height: 350px !important;
     }
     
     .control-btn {
@@ -183,29 +228,31 @@ body {
     }
 }
 
-/* Панель отладки (для разработки) */
+@media (max-width: 600px) {
+    #unity-canvas {
+        width: 300px !important;
+        height: 300px !important;
+    }
+    
+    .control-btn {
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .control-btn i {
+        font-size: 18px;
+    }
+    
+    .hamburger-btn,
+    .mode-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+}
+
+/* Убираем панель отладки */
 .debug-panel {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #4cc9f0;
-}
-
-.debug-panel button {
-    margin: 5px;
-    padding: 5px 10px;
-    background: #4cc9f0;
-    border: none;
-    border-radius: 3px;
-    color: #16213e;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.debug-panel button:hover {
-    background: #3a0ca3;
-    color: white;
+    display: none !important;
 }

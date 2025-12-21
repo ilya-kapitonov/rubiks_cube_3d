@@ -1,30 +1,26 @@
-console.log("=== СТАРТ ЗАГРУЗКИ ===");
-
 class CustomUI {
     constructor() {
         this.unityInstance = null;
         this.isReady = false;
+        this.moveHistory = [];
+        this.currentMoveIndex = -1;
         
         console.log("CustomUI создан");
         
         // Ждем Unity
         window.onUnityReady = (instance) => {
-            console.log("✓ Unity instance получен:", instance);
+            console.log("✓ Unity instance получен");
             this.unityInstance = instance;
             
-            // Ждем 3 секунды перед любыми вызовами
+            // Ждем 1 секунду перед любыми вызовами
             setTimeout(() => {
                 this.isReady = true;
                 console.log("=== СИСТЕМА ГОТОВА ===");
-                console.log("Используйте в консоли:");
-                console.log("  testUnity() - проверить подключение");
-                console.log("  sendCmd('SetCubeSpeed', 4) - установить скорость");
-                console.log("  sendCmd('ApplyColorPreset', 'neon') - изменить цвета");
-                console.log("  sendCmd('ShuffleCube') - перемешать");
+                console.log("Можно использовать кнопки управления");
                 
-                // Тестовый вызов
-                this.sendToUnity('TestConnection', 'Привет из JavaScript!');
-            }, 3000);
+                // Устанавливаем начальную скорость
+                this.sendToUnity('SetCubeSpeed', 1);
+            }, 1000);
         };
         
         this.init();
@@ -33,14 +29,109 @@ class CustomUI {
     init() {
         console.log("Инициализация UI...");
         
-        // Кнопка перемешивания
-        document.getElementById('shuffleBtn')?.addEventListener('click', () => {
-            console.log("Кнопка перемешивания");
-            this.sendToUnity('ShuffleCube');
-        });
+        // Инициализация переключателя режимов
+        this.setupModeSelector();
+        
+        // Инициализация кнопок управления
+        this.setupControlButtons();
         
         console.log("UI инициализирован ✓");
     }
+    
+    setupModeSelector() {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.mode-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                e.currentTarget.classList.add('active');
+                
+                const mode = e.currentTarget.dataset.mode;
+                console.log(`Выбран режим: ${mode}`);
+                
+                // Здесь можно добавить логику для разных режимов
+                if (mode === 'auto') {
+                    console.log("Режим автоматической сборки");
+                } else if (mode === 'manual') {
+                    console.log("Режим ручной сборки");
+                }
+            });
+        });
+    }
+    
+    setupControlButtons() {
+        // Кнопка перемешивания
+        document.getElementById('shuffleBtn')?.addEventListener('click', () => {
+            this.shuffleCube();
+        });
+        
+        // Кнопка отмены (шаг назад)
+        document.getElementById('undoBtn')?.addEventListener('click', () => {
+            this.undoMove();
+        });
+        
+        // Кнопка подсказки
+        document.getElementById('hintBtn')?.addEventListener('click', () => {
+            this.showHint();
+        });
+        
+        // Кнопка меню (пока только логирование)
+        document.getElementById('menuToggle')?.addEventListener('click', () => {
+            console.log("Меню открыто");
+            // TODO: Реализовать открытие меню
+        });
+    }
+    
+    // ===== ОСНОВНЫЕ МЕТОДЫ =====
+    
+    shuffleCube() {
+        if (!this.isReady) {
+            console.warn("Система ещё не готова");
+            return;
+        }
+        
+        if (confirm('Перемешать кубик? Текущий прогресс будет сброшен.')) {
+            console.log("Начинаем перемешивание...");
+            this.sendToUnity('ShuffleCube');
+            
+            // Очищаем историю ходов после перемешивания
+            this.moveHistory = [];
+            this.currentMoveIndex = -1;
+            console.log("История ходов очищена");
+        }
+    }
+    
+    undoMove() {
+        if (!this.isReady) {
+            console.warn("Система ещё не готова");
+            return;
+        }
+        
+        console.log("Отмена последнего хода...");
+        this.sendToUnity('UndoMove');
+    }
+    
+    showHint() {
+        if (!this.isReady) {
+            console.warn("Система ещё не готова");
+            return;
+        }
+        
+        console.log("Показать подсказку");
+        
+        // TODO: Реализовать подсказку
+        // Временное сообщение
+        alert("Функция подсказки будет реализована в следующей версии");
+    }
+    
+    // Метод для добавления хода в историю (будет вызываться из Unity)
+    addMoveToHistory(moveData) {
+        this.moveHistory.push(moveData);
+        this.currentMoveIndex = this.moveHistory.length - 1;
+        console.log(`Ход добавлен в историю. Всего ходов: ${this.moveHistory.length}`);
+    }
+    
+    // ===== УТИЛИТЫ =====
     
     sendToUnity(method, parameter = '') {
         if (!this.isReady) {
@@ -56,7 +147,7 @@ class CustomUI {
         console.log(`➡ Отправка в Unity: ${method}(${parameter})`);
         
         try {
-            if (parameter === '' || parameter === null) {
+            if (parameter === '' || parameter === null || parameter === undefined) {
                 this.unityInstance.SendMessage('WebCommunicator', method);
             } else {
                 this.unityInstance.SendMessage('WebCommunicator', method, parameter);
@@ -64,13 +155,21 @@ class CustomUI {
             console.log(`✓ Сообщение отправлено`);
         } catch (error) {
             console.error(`✗ Ошибка SendMessage:`, error);
-            console.error("Стек вызова:", error.stack);
         }
+    }
+    
+    // Метод для тестирования из консоли
+    testSpeed(speed) {
+        this.sendToUnity('SetCubeSpeed', speed);
+    }
+    
+    testColors(preset) {
+        this.sendToUnity('ApplyColorPreset', preset);
     }
 }
 
-// === ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ КОНСОЛИ ===
-function testUnity() {
+// Глобальные функции для консоли
+window.testUnity = function() {
     console.log("=== ТЕСТ ПОДКЛЮЧЕНИЯ ===");
     
     if (!window.customUI) {
@@ -88,32 +187,11 @@ function testUnity() {
         return;
     }
     
-    console.log("✓ CustomUI доступен");
-    console.log("✓ Unity instance доступен");
-    console.log("✓ Система готова");
-    
-    // Тестовый вызов
-    console.log("Отправляем тестовое сообщение...");
-    window.customUI.sendToUnity('TestConnection', 'Тест из консоли браузера');
-}
+    console.log("✓ Система готова к работе");
+};
 
-function sendCmd(method, parameter) {
-    if (window.customUI) {
-        window.customUI.sendToUnity(method, parameter);
-    } else {
-        console.error("CustomUI не доступен!");
-    }
-}
-
-// === ИНИЦИАЛИЗАЦИЯ ===
+// Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOMContentLoaded");
+    console.log("DOM загружен");
     window.customUI = new CustomUI();
-    
-    // Для отладки
-    console.log("Для тестирования используйте: testUnity()");
 });
-
-// Экспортируем для консоли
-window.testUnity = testUnity;
-window.sendCmd = sendCmd;

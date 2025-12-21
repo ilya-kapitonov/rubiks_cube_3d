@@ -34,7 +34,7 @@
         <!-- Центр: Unity -->
         <div class="unity-center">
             <div id="unity-container" class="unity-desktop">
-                <canvas id="unity-canvas" width="500" height="500" tabindex="-1"></canvas>
+                <canvas id="unity-canvas" width="400" height="400" tabindex="-1"></canvas>
                 <div id="unity-loading-bar">
                     <div id="unity-logo"></div>
                     <div id="unity-progress-bar-empty">
@@ -57,18 +57,9 @@
                 <i class="fas fa-lightbulb"></i> Подсказка
             </button>
         </div>
-
-        <!-- Панель отладки (скрыта по умолчанию) -->
-        <div class="debug-panel" style="display: none;">
-            <button onclick="sendToUnity('SetCubeSpeed', '1')">Скорость x1</button>
-            <button onclick="sendToUnity('SetCubeSpeed', '4')">Скорость x4</button>
-            <button onclick="sendToUnity('ApplyColorPreset', 'classic')">Классика</button>
-            <button onclick="sendToUnity('ApplyColorPreset', 'neon')">Неон</button>
-            <button onclick="sendToUnity('ShuffleCube', '')">Перемешать</button>
-        </div>
     </div>
 
-    <!-- Unity скрипт (БЕЗ ИЗМЕНЕНИЙ из вашего рабочего кода) -->
+    <!-- Unity скрипт -->
     <script>
         var container = document.querySelector("#unity-container");
         var canvas = document.querySelector("#unity-canvas");
@@ -96,8 +87,8 @@
             container.className = "unity-mobile";
             canvas.className = "unity-mobile";
         } else {
-            canvas.style.width = "500px";
-            canvas.style.height = "500px";
+            canvas.style.width = "400px";
+            canvas.style.height = "400px";
         }
 
         loadingBar.style.display = "block";
@@ -111,12 +102,11 @@
                 loadingBar.style.display = "none";
                 console.log("✓ Unity загружен успешно");
                 
-                // КРИТИЧЕСКИ ВАЖНО: сохраняем instance
+                // Сохраняем instance
                 window.unityInstance = unityInstance;
                 
                 // Уведомляем UI
                 if (window.onUnityReady) {
-                    console.log("Вызываем window.onUnityReady");
                     window.onUnityReady(unityInstance);
                 }
                 
