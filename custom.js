@@ -7,7 +7,6 @@ class CustomUI {
         
         // Настройки по умолчанию
         this.currentAlgorithm = 0; // 0 = Быстрый, 1 = Простой
-        this.speedOptions = [1, 4, 8, 12];
         this.currentSpeed = 1; // x1 по умолчанию
         this.currentColorScheme = 'classic';
         this.isAutoSolving = false;
@@ -64,35 +63,50 @@ class CustomUI {
         this.setupModeSelector();
         this.setupControlButtons();
         this.setupMenu();
-        this.setupSpeedDots();
+        this.setupSpeedSlider();
         this.setupWindows();
         this.updateStatsDisplay();
         
         console.log("UI инициализирован");
     }
     
-     // ===== ТОЧКИ СКОРОСТИ =====
-    setupSpeedDots() {
-        document.querySelectorAll('.speed-dot').forEach(dot => {
-            dot.addEventListener('click', (e) => {
-                const speed = parseInt(e.currentTarget.dataset.speed);
-                this.setSpeed(speed);
-            });
-        });
-        this.updateSpeedDots();
+     // ===== ПОЛЗУНОК СКОРОСТИ =====
+    setupSpeedSlider() {
+        this.speedSlider = new SpeedSlider(
+            'speedSlider', 
+            'speedThumb', 
+            'speedValue'
+        );
+        
+        // Устанавливаем обработчик изменения скорости
+        this.speedSlider.onSpeedChange = (speed) => {
+            this.currentSpeed = speed;
+            
+            // Отправляем в Unity
+            if (this.isReady) {
+                this.sendToUnity('SetCubeSpeed', speed);
+            }
+            
+            // Сохраняем настройки
+            this.saveSettings();
+            
+            console.log(`Установлена скорость: x${speed}`);
+        };
+        
+        // Загружаем сохраненную скорость
+        const savedSpeed = localStorage.getItem('rubiks_cube_settings');
+        if (savedSpeed) {
+            try {
+                const settings = JSON.parse(savedSpeed);
+                if (settings.speed) {
+                    this.speedSlider.setSpeed(settings.speed);
+                }
+            } catch (e) {
+                console.error("Ошибка загрузки скорости:", e);
+            }
+        }
     }
 
-    updateSpeedDots() {
-        document.querySelectorAll('.speed-dot').forEach(dot => {
-            const speed = parseInt(dot.dataset.speed);
-            if (speed === this.currentSpeed) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
-    }
-    
     // ===== РЕЖИМЫ (A/P) =====
     setupModeSelector() {
         document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -274,35 +288,10 @@ class CustomUI {
         console.log(`Установлен алгоритм: ${algorithm === 0 ? 'Быстрый' : 'Простой'}`);
     }
     
-     setSpeed(speed) {
-        if (!this.speedOptions.includes(speed)) {
-            console.error(`Недопустимая скорость: ${speed}`);
-            return;
+    setSpeed(speed) {
+        if (this.speedSlider) {
+            this.speedSlider.setSpeed(speed);
         }
-        
-        this.currentSpeed = speed;
-        
-        // Обновляем UI точек
-        document.querySelectorAll('.speed-dot').forEach(dot => {
-            dot.classList.remove('active');
-        });
-        document.querySelector(`.speed-dot[data-speed="${speed}"]`)?.classList.add('active');
-        
-        // Обновляем UI в меню (если оно еще используется где-то)
-        document.querySelectorAll('.speed-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
-        
-        // Отправляем в Unity
-        if (this.isReady) {
-            this.sendToUnity('SetCubeSpeed', speed);
-        }
-        
-        // Сохраняем настройки
-        this.saveSettings();
-        
-        console.log(`Установлена скорость: x${speed}`);
     }
     
     // ===== АВТОСБОРКА =====
@@ -473,7 +462,7 @@ class CustomUI {
         }
     }
     
-     applySavedSettings() {
+    applySavedSettings() {
         // Применяем цветовую схему
         this.sendToUnity('ApplyColorPreset', this.currentColorScheme);
         
@@ -488,11 +477,10 @@ class CustomUI {
         });
         document.querySelector(`.algorithm-option[data-algorithm="${this.currentAlgorithm}"]`)?.classList.add('active');
         
-        // Обновляем точки скорости
-        document.querySelectorAll('.speed-dot').forEach(dot => {
-            dot.classList.remove('active');
-        });
-        document.querySelector(`.speed-dot[data-speed="${this.currentSpeed}"]`)?.classList.add('active');
+        // Обновляем ползунок скорости (если он инициализирован)
+        if (this.speedSlider) {
+            this.speedSlider.setSpeed(this.currentSpeed);
+        }
     }
     
     // ===== КОММУНИКАЦИЯ С UNITY =====
@@ -663,9 +651,112 @@ class CustomUI {
         this.saveSettings();
         
         console.log(`Установлена скорость: x${speed}`);
+    }
+}
+
+class SpeedSlider {
+    constructor(sliderId, thumbId, valueId) {
+        this.slider = document.getElementById(sliderId);
+        this.thumb = document.getElementById(thumbId);
+        this.valueElement = document.getElementById(valueId);
+        this.markers = this.slider.querySelectorAll('.speed-marker');
+        this.speeds = [1, 4, 8, 12];
+        this.currentSpeed = 1;
         
-        // Явно обновляем точки скорости
-        this.updateSpeedDots();
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.updateSliderPosition(this.currentSpeed);
+        this.updateValueDisplay();
+    }
+    
+    setupEventListeners() {
+        // Перетаскивание ползунка
+        this.thumb.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const onMouseMove = (moveEvent) => {
+                this.setSpeedFromPosition(moveEvent.clientX);
+            };
+            
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+        
+        // Клик по треку
+        this.slider.addEventListener('click', (e) => {
+            this.setSpeedFromPosition(e.clientX);
+        });
+        
+        // Клик по маркерам
+        this.markers.forEach((marker, index) => {
+            marker.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const speed = this.speeds[index];
+                this.setSpeed(speed);
+            });
+        });
+    }
+    
+    setSpeedFromPosition(clientX) {
+        const rect = this.slider.getBoundingClientRect();
+        let position = (clientX - rect.left) / rect.width;
+        position = Math.max(0, Math.min(1, position));
+        
+        // Находим ближайший маркер
+        let nearestIndex = 0;
+        let minDistance = 1;
+        
+        this.markers.forEach((marker, index) => {
+            const markerPos = parseFloat(marker.style.left) / 100;
+            const distance = Math.abs(position - markerPos);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestIndex = index;
+            }
+        });
+        
+        this.setSpeed(this.speeds[nearestIndex]);
+    }
+    
+    setSpeed(speed) {
+        this.currentSpeed = speed;
+        this.updateSliderPosition(speed);
+        this.updateValueDisplay();
+        
+        // Вызываем callback, если он установлен
+        if (this.onSpeedChange) {
+            this.onSpeedChange(speed);
+        }
+    }
+    
+    updateSliderPosition(speed) {
+        const index = this.speeds.indexOf(speed);
+        const positions = ['0%', '33.33%', '66.66%', '100%'];
+        
+        if (index !== -1) {
+            this.thumb.style.left = positions[index];
+            
+            this.markers.forEach((marker, i) => {
+                marker.style.background = i === index ? '#4cc9f0' : 'rgba(255, 255, 255, 0.4)';
+            });
+        }
+    }
+    
+    updateValueDisplay() {
+        this.valueElement.textContent = `x${this.currentSpeed}`;
+    }
+    
+    onSpeedChange(speed) {
+        // Будет переопределен в CustomUI
     }
 }
 

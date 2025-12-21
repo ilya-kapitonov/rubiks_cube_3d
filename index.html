@@ -44,24 +44,18 @@
                 <div id="unity-warning"></div>
             </div>
             <div class="speed-panel">
-                <div class="speed-label">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Скорость</span>
-                </div>
-                <div class="speed-dots">
-                    <div class="speed-dot active" data-speed="1" data-label="x1" title="Скорость x1">
-                        <span class="dot-number">x1</span>
-                    </div>
-                    <div class="speed-dot" data-speed="4" data-label="x4" title="Скорость x4">
-                        <span class="dot-number">x4</span>
-                    </div>
-                    <div class="speed-dot" data-speed="8" data-label="x8" title="Скорость x8">
-                        <span class="dot-number">x8</span>
-                    </div>
-                    <div class="speed-dot" data-speed="12" data-label="x12" title="Скорость x12">
-                        <span class="dot-number">x12</span>
+                <span class="speed-label">Скорость анимации:</span>
+                <div class="speed-slider" id="speedSlider">
+                    <div class="speed-track"></div>
+                    <div class="speed-thumb" id="speedThumb"></div>
+                    <div class="speed-markers">
+                        <div class="speed-marker" data-speed="1"></div>
+                        <div class="speed-marker" data-speed="4"></div>
+                        <div class="speed-marker" data-speed="8"></div>
+                        <div class="speed-marker" data-speed="12"></div>
                     </div>
                 </div>
+                <div class="speed-value" id="speedValue">x1</div>
             </div>
         </div>
 
