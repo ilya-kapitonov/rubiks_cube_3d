@@ -16,7 +16,7 @@ class CustomUI {
         // Статистика
         this.gameStats = {
             totalSolves: 12,
-            bestTime: 145, // 2:25 в секундах
+            bestTime: 145,
             totalMoves: 583,
             bestRecords: [
                 { time: 145, moves: 42, date: '2024-01-15' },
@@ -36,17 +36,20 @@ class CustomUI {
             console.log("Unity instance получен");
             this.unityInstance = instance;
             
-            // Ждем 1 секунду перед любыми вызовами
             setTimeout(() => {
                 this.isReady = true;
                 console.log("=== СИСТЕМА ГОТОВА ===");
-                console.log("Можно использовать кнопки управления");
                 
                 // Применяем сохраненные настройки
                 this.applySavedSettings();
                 
                 // Устанавливаем начальную скорость
                 this.sendToUnity('SetCubeSpeed', this.currentSpeed);
+                
+                // Если в авторежиме - запускаем автосборку
+                if (this.getCurrentMode() === 'auto') {
+                    this.startAutoSolve();
+                }
                 
             }, 1000);
         };
@@ -61,78 +64,79 @@ class CustomUI {
         this.setupModeSelector();
         this.setupControlButtons();
         this.setupMenu();
+        this.setupSpeedDots(); // НОВОЕ: настройка точек скорости
         this.setupWindows();
         this.updateStatsDisplay();
         
         console.log("UI инициализирован");
     }
     
-    // ===== РЕЖИМЫ (A/P) =====
-    setupModeSelector() {
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const oldMode = this.getCurrentMode();
-                const newMode = e.currentTarget.dataset.mode;
-                
-                // Снимаем активный класс со всех
-                document.querySelectorAll('.mode-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                // Добавляем активный класс выбранному
-                e.currentTarget.classList.add('active');
-                
-                console.log(`Режим изменен: ${oldMode} → ${newMode}`);
-                
-                // Обработка смены режима
-                this.handleModeChange(oldMode, newMode);
+    // ===== ТОЧКИ СКОРОСТИ =====
+    setupSpeedDots() {
+        document.querySelectorAll('.speed-dot').forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                const speed = parseInt(e.currentTarget.dataset.speed);
+                this.setSpeed(speed);
             });
         });
     }
     
-    getCurrentMode() {
-        const activeBtn = document.querySelector('.mode-btn.active');
-        return activeBtn ? activeBtn.dataset.mode : 'manual';
-    }
-    
-    handleModeChange(oldMode, newMode) {
-        // Если переключаемся из авторежима в ручной - останавливаем автосборку
-        if (oldMode === 'auto' && newMode === 'manual') {
-            this.stopAutoSolve();
+    // Обновленный метод setSpeed для работы с точками
+    setSpeed(speed) {
+        if (!this.speedOptions.includes(speed)) {
+            console.error(`Недопустимая скорость: ${speed}`);
+            return;
         }
-        // Если переключаемся из ручного в авторежим - запускаем автосборку
-        else if (oldMode === 'manual' && newMode === 'auto') {
-            this.startAutoSolve();
+        
+        this.currentSpeed = speed;
+        
+        // Обновляем UI точек
+        document.querySelectorAll('.speed-dot').forEach(dot => {
+            dot.classList.remove('active');
+        });
+        document.querySelector(`.speed-dot[data-speed="${speed}"]`)?.classList.add('active');
+        
+        // Обновляем UI в меню (если оно еще используется где-то)
+        document.querySelectorAll('.speed-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
+        
+        // Отправляем в Unity
+        if (this.isReady) {
+            this.sendToUnity('SetCubeSpeed', speed);
         }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлена скорость: x${speed}`);
     }
     
-    // ===== КНОПКИ УПРАВЛЕНИЯ =====
-    setupControlButtons() {
-        // Кнопка перемешивания
-        document.getElementById('shuffleBtn')?.addEventListener('click', () => {
-            this.shuffleCube();
-        });
+    // Обновленный applySavedSettings для точек скорости
+    applySavedSettings() {
+        // Применяем цветовую схему
+        this.sendToUnity('ApplyColorPreset', this.currentColorScheme);
         
-        // Кнопка отмены
-        document.getElementById('undoBtn')?.addEventListener('click', () => {
-            this.undoMove();
+        // Обновляем UI
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.classList.remove('active');
         });
+        document.querySelector(`.color-option[data-scheme="${this.currentColorScheme}"]`)?.classList.add('active');
         
-        // Кнопка подсказки
-        document.getElementById('hintBtn')?.addEventListener('click', () => {
-            this.showHint();
+        document.querySelectorAll('.algorithm-option').forEach(option => {
+            option.classList.remove('active');
         });
+        document.querySelector(`.algorithm-option[data-algorithm="${this.currentAlgorithm}"]`)?.classList.add('active');
         
-        // Кнопки сохранения/загрузки
-        document.getElementById('saveBtn')?.addEventListener('click', () => {
-            this.saveCurrentState();
+        // Обновляем точки скорости
+        document.querySelectorAll('.speed-dot').forEach(dot => {
+            dot.classList.remove('active');
         });
-        
-        document.getElementById('loadBtn')?.addEventListener('click', () => {
-            this.loadSavedState();
-        });
+        document.querySelector(`.speed-dot[data-speed="${this.currentSpeed}"]`)?.classList.add('active');
     }
     
-    // ===== МЕНЮ =====
+    // Остальной код остается таким же, за исключением setupMenu
     setupMenu() {
         const menuToggle = document.getElementById('menuToggle');
         const menuCloseBtn = document.getElementById('menuCloseBtn');
@@ -168,181 +172,33 @@ class CustomUI {
             });
         });
         
-        // Скорость вращения
-        document.querySelectorAll('.speed-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                const speed = parseFloat(e.currentTarget.dataset.speed);
-                this.setSpeed(speed);
-            });
+        // Кнопки меню
+        document.getElementById('statsBtn')?.addEventListener('click', () => {
+            this.showStatsWindow();
+            this.closeMenu();
         });
         
-    // Кнопка справки в меню
         document.getElementById('helpBtn')?.addEventListener('click', () => {
             this.showHelpWindow();
             this.closeMenu();
         });
-        
-        // Клик на заголовок статистики в меню
-        const statsTitle = document.querySelector('.stats-title');
-        if (statsTitle) {
-            statsTitle.addEventListener('click', () => {
-                this.showStatsWindow();
-                this.closeMenu();
-            });
-        }
-        
-        // Кнопка очистки статистики в меню
-        document.getElementById('clearStatsBtn')?.addEventListener('click', () => {
-            this.clearStats();
-        });
-        
-        this.setupWindows();
     }
     
-    toggleMenu() {
-        const sideMenu = document.getElementById('sideMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
-        
-        this.menuOpen = !this.menuOpen;
-        
-        if (this.menuOpen) {
-            sideMenu.classList.add('open');
-            menuOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        } else {
-            this.closeMenu();
-        }
-    }
-    
-    closeMenu() {
-        const sideMenu = document.getElementById('sideMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
-        
-        this.menuOpen = false;
-        sideMenu.classList.remove('open');
-        menuOverlay.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-    
-    // ===== НАСТРОЙКИ =====
-    setColorScheme(scheme) {
-        this.currentColorScheme = scheme;
-        
-        // Обновляем UI
-        document.querySelectorAll('.color-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`.color-option[data-scheme="${scheme}"]`)?.classList.add('active');
-        
-        // Отправляем в Unity
-        if (this.isReady) {
-            this.sendToUnity('ApplyColorPreset', scheme);
-        }
-        
-        // Сохраняем настройки
-        this.saveSettings();
-        
-        console.log(`Установлена цветовая схема: ${scheme}`);
-    }
-    
-    setAlgorithm(algorithm) {
-        this.currentAlgorithm = algorithm;
-        
-        // Обновляем UI
-        document.querySelectorAll('.algorithm-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`.algorithm-option[data-algorithm="${algorithm}"]`)?.classList.add('active');
-        
-        // Если в авторежиме и идет сборка - перезапускаем с новым алгоритмом
-        if (this.getCurrentMode() === 'auto' && this.isAutoSolving) {
-            this.stopAutoSolve();
-            setTimeout(() => this.startAutoSolve(), 500);
-        }
-        
-        // Сохраняем настройки
-        this.saveSettings();
-        
-        console.log(`Установлен алгоритм: ${algorithm === 0 ? 'Быстрый' : 'Простой'}`);
-    }
-    
-    setSpeed(speed) {
-        this.currentSpeed = speed;
-        
-        // Обновляем UI
-        document.querySelectorAll('.speed-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
-        
-        // Отправляем в Unity
-        if (this.isReady) {
-            this.sendToUnity('SetCubeSpeed', speed);
-        }
-        
-        // Сохраняем настройки
-        this.saveSettings();
-        
-        console.log(`Установлена скорость: x${speed}`);
-    }
-    
-    // ===== АВТОСБОРКА =====
-    startAutoSolve() {
-        if (!this.isReady) {
-            console.warn("Система не готова");
-            return;
-        }
-        
-        console.log(`Запуск автосборки алгоритмом: ${this.currentAlgorithm === 0 ? 'Быстрый' : 'Простой'}`);
-        this.sendToUnity('StartAutoSolve', this.currentAlgorithm);
-        this.isAutoSolving = true;
-    }
-    
-    stopAutoSolve() {
-        if (!this.isReady || !this.isAutoSolving) {
-            return;
-        }
-        
-        console.log("Остановка автосборки");
-        this.sendToUnity('StopAutoSolve');
-        this.isAutoSolving = false;
-    }
-    
-    // ===== ОСНОВНЫЕ МЕТОДЫ =====
-    shuffleCube() {
-        if (!this.isReady) {
-            console.warn("Система ещё не готова");
-            return;
-        }
-        
-        if (confirm('Перемешать кубик? Текущий прогресс будет сброшен.')) {
-            console.log("Начинаем перемешивание...");
-            this.sendToUnity('ShuffleCube');
-        }
-    }
-    
-    undoMove() {
-        if (!this.isReady) {
-            console.warn("Система ещё не готова");
-            return;
-        }
-        
-        console.log("Отмена последнего хода...");
-        this.sendToUnity('UndoMove');
-    }
-    
+    // Обновленный showHint для работы с подсказками в ручном режиме
     showHint() {
         if (!this.isReady) {
             console.warn("Система ещё не готова");
             return;
         }
         
-        if (this.getCurrentMode() === 'auto') {
-            // В авторежиме - запрашиваем подсказку из Unity
-            this.sendToUnity('GetNextHint');
+        const currentMode = this.getCurrentMode();
+        
+        if (currentMode === 'auto') {
+            alert("В авторежиме подсказки не нужны - кубик собирается автоматически");
         } else {
-            // В ручном режиме - временное сообщение
-            alert("В ручном режиме подсказки пока не реализованы");
+            // В ручном режиме запрашиваем подсказку из Unity
+            this.sendToUnity('GetNextHint');
+            console.log("Запрос подсказки в ручном режиме");
         }
     }
     

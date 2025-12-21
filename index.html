@@ -113,23 +113,10 @@
                 </div>
             </div>
             
-            <div class="menu-section">
-                <h4><i class="fas fa-tachometer-alt"></i> Скорость вращения</h4>
-                <div class="speed-control">
-                    <div class="speed-option active" data-speed="1">x1</div>
-                    <div class="speed-option" data-speed="4">x4</div>
-                    <div class="speed-option" data-speed="8">x8</div>
-                    <div class="speed-option" data-speed="12">x12</div>
-                </div>
-            </div>
-            
-            <div class="menu-section">
-                <h4 style="cursor: pointer;" class="stats-title">
-                    <i class="fas fa-chart-line"></i> Статистика
-                </h4>
-            </div>
-            
             <div class="menu-footer">
+                <button class="menu-btn" id="statsBtn">
+                    <i class="fas fa-chart-line"></i> Статистика
+                </button>
                 <button class="menu-btn help-btn" id="helpBtn">
                     <i class="fas fa-question-circle"></i> Справка
                 </button>
@@ -203,107 +190,96 @@
 
 
     <div class="window-overlay" id="statsOverlay"></div>
-<div class="overlay-window" id="statsWindow">
-    <div class="overlay-header">
-        <h3><i class="fas fa-chart-line"></i> Статистика</h3>
-        <button class="overlay-close-btn" id="closeStatsBtn">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="overlay-content">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="statsTotalSolves">0</div>
-                <div class="stat-label">Всего сборок</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statsBestTime">0:00</div>
-                <div class="stat-label">Лучшее время</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statsAvgTime">0:00</div>
-                <div class="stat-label">Среднее время</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statsTotalMoves">0</div>
-                <div class="stat-label">Всего ходов</div>
-            </div>
-        </div>
-        
-        <h4><i class="fas fa-trophy"></i> Рекорды</h4>
-        <table class="records-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Время</th>
-                    <th>Ходы</th>
-                    <th>Дата</th>
-                </tr>
-            </thead>
-            <tbody id="recordsTableBody">
-                <!-- Заполнится JavaScript -->
-            </tbody>
-        </table>
-        
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="menu-btn" id="clearAllStatsBtn" style="flex: 1;">
-                <i class="fas fa-trash-alt"></i> Очистить статистику
-            </button>
-            <button class="menu-btn help-btn" id="exportStatsBtn" style="flex: 1;">
-                <i class="fas fa-download"></i> Экспорт
+    <div class="overlay-window" id="statsWindow">
+        <div class="overlay-header">
+            <h3><i class="fas fa-chart-line"></i> Статистика</h3>
+            <button class="overlay-close-btn" id="closeStatsBtn">
+                <i class="fas fa-times"></i>
             </button>
         </div>
+        <div class="overlay-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statsTotalSolves">0</div>
+                    <div class="stat-label">Всего сборок</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsBestTime">0:00</div>
+                    <div class="stat-label">Лучшее время</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsAvgTime">0:00</div>
+                    <div class="stat-label">Среднее время</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsTotalMoves">0</div>
+                    <div class="stat-label">Всего ходов</div>
+                </div>
+            </div>
+            
+            <h4><i class="fas fa-trophy"></i> Рекорды</h4>
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Время</th>
+                        <th>Ходы</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTableBody">
+                    <!-- Заполнится JavaScript -->
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="menu-btn" id="clearAllStatsBtn" style="flex: 1;">
+                    <i class="fas fa-trash-alt"></i> Очистить статистику
+                </button>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- Окно справки -->
-<div class="window-overlay" id="helpOverlay"></div>
-<div class="overlay-window" id="helpWindow">
-    <div class="overlay-header">
-        <h3><i class="fas fa-question-circle"></i> Справка</h3>
-        <button class="overlay-close-btn" id="closeHelpBtn">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="overlay-content help-content">
-        <div class="help-section">
-            <h4>Управление мышью</h4>
-            <p>• <strong>ЛКМ + перетаскивание</strong> - вращение всего кубика</p>
-            <p>• <strong>ЛКМ по грани + перетаскивание</strong> - вращение конкретной грани</p>
+    <!-- Окно справки -->
+    <div class="window-overlay" id="helpOverlay"></div>
+    <div class="overlay-window" id="helpWindow">
+        <div class="overlay-header">
+            <h3><i class="fas fa-question-circle"></i> Справка</h3>
+            <button class="overlay-close-btn" id="closeHelpBtn">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        
-        <div class="help-section">
-            <h4>Управление с клавиатуры</h4>
-            <p><span class="key-combination">W</span> - Вращение верхней грани (Up)</p>
-            <p><span class="key-combination">S</span> - Вращение нижней грани (Down)</p>
-            <p><span class="key-combination">A</span> - Вращение левой грани (Left)</p>
-            <p><span class="key-combination">D</span> - Вращение правой грани (Right)</p>
-            <p><span class="key-combination">F</span> - Вращение передней грани (Front)</p>
-            <p><span class="key-combination">B</span> - Вращение задней грани (Back)</p>
-            <p><span class="key-combination">R</span> - Перемешать кубик</p>
-            <p><span class="key-combination">E</span> - Сбросить кубик</p>
-        </div>
-        
-        <div class="help-section">
-            <h4>Режимы работы</h4>
-            <p><strong>Ручной режим (P)</strong> - полный контроль над кубиком</p>
-            <p><strong>Автоматический режим (A)</strong> - автосборка по выбранному алгоритму</p>
-        </div>
-        
-        <div class="help-section">
-            <h4>Алгоритмы сборки</h4>
-            <p><strong>Быстрый</strong> - последовательность L R L R (4 хода)</p>
-            <p><strong>Простой</strong> - последовательность L L L (3 хода)</p>
-        </div>
-        
-        <div class="help-section">
-            <h4>Сочетания скоростей</h4>
-            <p>• <strong>x1</strong> - Нормальная скорость</p>
-            <p>• <strong>x4</strong> - Быстрая скорость</p>
-            <p>• <strong>x8</strong> - Очень быстрая скорость</p>
-            <p>• <strong>x12</strong> - Максимальная скорость</p>
+        <div class="overlay-content help-content">
+            <div class="help-section">
+                <h4>Управление мышью</h4>
+                <p>• <strong>ЛКМ + перетаскивание</strong> - вращение всего кубика</p>
+                <p>• <strong>ЛКМ по грани + перетаскивание</strong> - вращение конкретной грани</p>
+            </div>
+            
+            <div class="help-section">
+                <h4>Управление с клавиатуры</h4>
+                <p><span class="key-combination">W</span> - Вращение верхней грани (Up)</p>
+                <p><span class="key-combination">S</span> - Вращение нижней грани (Down)</p>
+                <p><span class="key-combination">A</span> - Вращение левой грани (Left)</p>
+                <p><span class="key-combination">D</span> - Вращение правой грани (Right)</p>
+                <p><span class="key-combination">F</span> - Вращение передней грани (Front)</p>
+                <p><span class="key-combination">B</span> - Вращение задней грани (Back)</p>
+                <p><span class="key-combination">R</span> - Перемешать кубик</p>
+                <p><span class="key-combination">E</span> - Сбросить кубик</p>
+            </div>
+            
+            <div class="help-section">
+                <h4>Режимы работы</h4>
+                <p><strong>Ручной режим (P)</strong> - полный контроль над кубиком</p>
+                <p><strong>Автоматический режим (A)</strong> - автосборка по выбранному алгоритму</p>
+            </div>
+            
+            <div class="help-section">
+                <h4>Алгоритмы сборки</h4>
+                <p><strong>Быстрый</strong> - последовательность L R L R (4 хода)</p>
+                <p><strong>Простой</strong> - последовательность L L L (3 хода)</p>
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>
