@@ -2,6 +2,7 @@ class CustomUI {
     constructor() {
         this.unityInstance = null;
         this.isReady = false;
+        this.userInteracted = false;
         
         console.log("CustomUI создан");
         
@@ -35,7 +36,7 @@ class CustomUI {
             back: '#B71234',
             down: '#FF5800'
         };
-        
+        this.initCustomColors();
         // Загрузка сохраненных данных
         this.loadSettings();
         this.loadStats();
@@ -80,7 +81,18 @@ class CustomUI {
         
         console.log("UI инициализирован");
     }
-    
+    initCustomColors() {
+        // Загружаем сохраненные пользовательские цвета
+        const savedColors = localStorage.getItem('rubiks_cube_custom_colors');
+        if (savedColors) {
+            try {
+                this.customColors = JSON.parse(savedColors);
+                console.log("Пользовательские цвета загружены:", this.customColors);
+            } catch (e) {
+                console.error("Ошибка загрузки пользовательских цветов:", e);
+            }
+        }
+    }
      // ===== ПОЛЗУНОК СКОРОСТИ =====
     setupSpeedSlider() {
         this.speedSlider = new SpeedSlider(
@@ -267,9 +279,15 @@ class CustomUI {
         });
         document.querySelector(`.color-option[data-scheme="${scheme}"]`)?.classList.add('active');
         
-        // Отправляем в Unity
+        // Отправляем выбранную схему в Unity
         if (this.isReady) {
-            this.sendToUnity('ApplyColorPreset', scheme);
+            if (scheme === 'custom') {
+                // Отправляем пользовательские цвета
+                this.sendToUnity('ApplyCustomColors', JSON.stringify(this.customColors));
+            } else {
+                // Отправляем стандартную схему
+                this.sendToUnity('ApplyColorPreset', scheme);
+            }
         }
         
         // Сохраняем настройки
@@ -337,6 +355,7 @@ class CustomUI {
         if (confirm('Перемешать кубик? Текущий прогресс будет сброшен.')) {
             console.log("Начинаем перемешивание...");
             this.sendToUnity('ShuffleCube');
+            this.userInteracted = false;
         }
     }
     
@@ -426,7 +445,8 @@ class CustomUI {
         const settings = {
             algorithm: this.currentAlgorithm,
             speed: this.currentSpeed,
-            colorScheme: this.currentColorScheme
+            colorScheme: this.currentColorScheme,
+            customColors: this.customColors // Сохраняем пользовательские цвета
         };
         
         try {
@@ -445,6 +465,7 @@ class CustomUI {
                 this.currentAlgorithm = parsed.algorithm || 0;
                 this.currentSpeed = parsed.speed || 1;
                 this.currentColorScheme = parsed.colorScheme || 'classic';
+                this.customColors = parsed.customColors || this.customColors; // Загружаем пользовательские цвета
                 console.log("Настройки загружены:", parsed);
             }
         } catch (e) {
@@ -474,10 +495,7 @@ class CustomUI {
     }
     
     applySavedSettings() {
-        // Применяем цветовую схему
-        this.sendToUnity('ApplyColorPreset', this.currentColorScheme);
-        
-        // Обновляем UI
+    // Обновляем UI
         document.querySelectorAll('.color-option').forEach(option => {
             option.classList.remove('active');
         });
@@ -488,10 +506,29 @@ class CustomUI {
         });
         document.querySelector(`.algorithm-option[data-algorithm="${this.currentAlgorithm}"]`)?.classList.add('active');
         
-        // Обновляем ползунок скорости (если он инициализирован)
+        // Обновляем ползунок скорости
         if (this.speedSlider) {
             this.speedSlider.setSpeed(this.currentSpeed);
         }
+        
+        // Обновляем развертку пользовательскими цветами
+        Object.entries(this.customColors).forEach(([face, color]) => {
+            const cell = document.querySelector(`.net-cell[data-face="${face}"]`);
+            if (cell) {
+                cell.style.background = color;
+            }
+        });
+        
+        // Применяем цветовую схему (после загрузки Unity)
+        setTimeout(() => {
+            if (this.isReady) {
+                if (this.currentColorScheme === 'custom') {
+                    this.sendToUnity('ApplyCustomColors', JSON.stringify(this.customColors));
+                } else {
+                    this.sendToUnity('ApplyColorPreset', this.currentColorScheme);
+                }
+            }
+        }, 500);
     }
     
     // ===== КОММУНИКАЦИЯ С UNITY =====
@@ -666,34 +703,38 @@ class CustomUI {
 
     setupCustomColors() {
     // Кнопка открытия окна
-    document.getElementById('customizeColorsBtn')?.addEventListener('click', () => {
-        this.showColorsWindow();
-        this.closeMenu();
-    });
-    
-    // Закрытие окна
-    document.getElementById('closeColorsBtn')?.addEventListener('click', () => {
-        this.hideColorsWindow();
-    });
-    
-    document.getElementById('colorsOverlay')?.addEventListener('click', () => {
-        this.hideColorsWindow();
-    });
-    
-    // Выбор грани в развертке
-    document.querySelectorAll('.net-cell').forEach(cell => {
-        cell.addEventListener('click', (e) => {
-            const face = e.currentTarget.dataset.face;
-            this.selectFace(face);
+        document.getElementById('customizeColorsBtn')?.addEventListener('click', () => {
+            this.showColorsWindow();
+            this.closeMenu();
         });
-    });
-    
-    // RGB слайдеры
-    const sliders = ['redSlider', 'greenSlider', 'blueSlider'];
-    sliders.forEach(sliderId => {
-        document.getElementById(sliderId)?.addEventListener('input', (e) => {
-            this.updateColorFromSliders();
+        
+        // Закрытие окна
+        document.getElementById('closeColorsBtn')?.addEventListener('click', () => {
+            this.hideColorsWindow();
         });
+        
+        document.getElementById('colorsOverlay')?.addEventListener('click', () => {
+            this.hideColorsWindow();
+        });
+
+        document.getElementById('saveCustomSchemeBtn')?.addEventListener('click', () => {
+            this.saveCustomScheme();
+        });
+        
+        // Выбор грани в развертке
+        document.querySelectorAll('.net-cell').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const face = e.currentTarget.dataset.face;
+                this.selectFace(face);
+            });
+        });
+    
+        // RGB слайдеры
+        const sliders = ['redSlider', 'greenSlider', 'blueSlider'];
+        sliders.forEach(sliderId => {
+            document.getElementById(sliderId)?.addEventListener('input', (e) => {
+                this.updateColorFromSliders();
+            });
     });
     
     // Быстрые цвета
@@ -712,10 +753,19 @@ class CustomUI {
     document.getElementById('resetColorsBtn')?.addEventListener('click', () => {
         this.resetCustomColors();
     });
-    
-    // Загружаем сохраненные цвета
-    this.loadCustomColors();
 }
+
+    saveCustomScheme() {
+        // Активируем опцию "Своя схема" в меню
+        this.setColorScheme('custom');
+        
+        // Закрываем окно настройки
+        this.hideColorsWindow();
+        
+        // Показываем уведомление
+        alert('Своя цветовая схема сохранена!');
+        console.log('Своя цветовая схема сохранена:', this.customColors);
+    }
 
     selectFace(face) {
         this.selectedFace = face;
@@ -808,25 +858,29 @@ class CustomUI {
         // Сохраняем цвет
         this.customColors[this.selectedFace] = hexColor;
         
+        // Сохраняем в localStorage
+        this.saveCustomColors();
+        
         // Обновляем отображение
         const selectedCell = document.querySelector(`.net-cell[data-face="${this.selectedFace}"]`);
         if (selectedCell) {
             selectedCell.style.background = hexColor;
         }
         
-        // Сохраняем в localStorage
-        this.saveCustomColors();
+        // Применяем пользовательскую схему
+        if (this.currentColorScheme === 'custom' && this.isReady) {
+            this.sendToUnity('ApplyCustomColors', JSON.stringify(this.customColors));
+        }
         
         // Показываем подтверждение
         const faceNames = {
             up: 'Верхняя',
-            left: 'Левая',
-            front: 'Передняя', 
+            left: 'Левая', 
+            front: 'Передняя',
             right: 'Правая',
             back: 'Задняя',
             down: 'Нижняя'
         };
-        
         console.log(`Цвет грани "${faceNames[this.selectedFace]}" изменен на: ${hexColor}`);
     }
 
@@ -905,10 +959,13 @@ class CustomUI {
             up: '#FFFFFF',
             left: '#FFD500',
             front: '#009B48',
-            right: '#0046AD', 
+            right: '#0046AD',
             back: '#B71234',
             down: '#FF5800'
         };
+        
+        // Сохраняем сброс
+        this.saveCustomColors();
         
         // Обновляем отображение
         Object.entries(this.customColors).forEach(([face, color]) => {
@@ -923,37 +980,9 @@ class CustomUI {
             this.setColorToSliders(this.customColors[this.selectedFace]);
         }
         
-        // Сохраняем
-        this.saveCustomColors();
-    }
-
-    saveCustomColors() {
-        try {
-            localStorage.setItem('rubiks_cube_custom_colors', JSON.stringify(this.customColors));
-            console.log("Пользовательские цвета сохранены");
-        } catch (e) {
-            console.error("Ошибка сохранения цветов:", e);
-        }
-    }
-
-    loadCustomColors() {
-        try {
-            const saved = localStorage.getItem('rubiks_cube_custom_colors');
-            if (saved) {
-                this.customColors = JSON.parse(saved);
-                
-                // Обновляем отображение
-                Object.entries(this.customColors).forEach(([face, color]) => {
-                    const cell = document.querySelector(`.net-cell[data-face="${face}"]`);
-                    if (cell) {
-                        cell.style.background = color;
-                    }
-                });
-                
-                console.log("Пользовательские цвета загружены");
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки цветов:", e);
+        // Если выбрана пользовательская схема - обновляем в Unity
+        if (this.currentColorScheme === 'custom' && this.isReady) {
+            this.applyCustomColorsToUnity();
         }
     }
 
@@ -970,6 +999,38 @@ class CustomUI {
         document.getElementById('colorsWindow').classList.remove('active');
         document.getElementById('colorsOverlay').classList.remove('active');
         document.body.style.overflow = 'auto';
+    }
+
+    switchToManualMode() {
+        if (this.getCurrentMode() === 'auto' && !this.userInteracted) {
+            this.userInteracted = true;
+            
+            // Находим кнопку ручного режима и кликаем
+            const manualBtn = document.querySelector('.mode-btn[data-mode="manual"]');
+            if (manualBtn) {
+                manualBtn.click();
+                console.log("Автоматически переключено в ручной режим");
+            }
+        }
+    }
+    saveCustomColors() {
+        try {
+            localStorage.setItem('rubiks_cube_custom_colors', JSON.stringify(this.customColors));
+            console.log("Пользовательские цвета сохранены");
+        } catch (e) {
+            console.error("Ошибка сохранения пользовательских цветов:", e);
+        }
+    }
+
+    applyCustomColorsToUnity() {
+        if (!this.isReady) {
+            console.warn("Unity не готов к приему данных");
+            return;
+        }
+        
+        // Отправляем пользовательские цвета в Unity
+        this.sendToUnity('ApplyCustomColors', JSON.stringify(this.customColors));
+        console.log("Пользовательские цвета отправлены в Unity:", this.customColors);
     }
 }
 
@@ -1150,6 +1211,12 @@ window.clearAllData = function() {
         console.log("Все данные очищены");
     }
 };
+
+window.onUserInteraction = function() {
+    if (window.customUI) {
+        window.customUI.switchToManualMode();
+    }
+}
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
