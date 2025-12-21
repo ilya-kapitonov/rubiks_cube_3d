@@ -24,6 +24,14 @@ class CustomUI {
         };
         
         this.init();
+
+         this.gameStats = {
+            totalSolves: 0,
+            totalPlayTime: 0,
+            bestRecords: []
+        };
+        
+        this.loadStats();
     }
     
     init() {
@@ -80,6 +88,15 @@ class CustomUI {
             console.log("Меню открыто");
             // TODO: Реализовать открытие меню
         });
+
+         document.getElementById('saveBtn')?.addEventListener('click', () => {
+            this.saveCurrentState();
+        });
+        
+        // Новая кнопка загрузки
+        document.getElementById('loadBtn')?.addEventListener('click', () => {
+            this.loadSavedState();
+        });
     }
     
     // ===== ОСНОВНЫЕ МЕТОДЫ =====
@@ -109,6 +126,9 @@ class CustomUI {
         
         console.log("Отмена последнего хода...");
         this.sendToUnity('UndoMove');
+        
+        // Обновляем интерфейс
+        this.updateStatsDisplay();
     }
     
     showHint() {
@@ -166,6 +186,100 @@ class CustomUI {
     testColors(preset) {
         this.sendToUnity('ApplyColorPreset', preset);
     }
+
+    saveCubeState(state) {
+        try {
+            localStorage.setItem('rubiks_cube_last_state', state);
+            console.log("Состояние сохранено в localStorage");
+        } catch (e) {
+            console.error("Ошибка сохранения:", e);
+        }
+    }
+    
+    loadCubeState() {
+        try {
+            const state = localStorage.getItem('rubiks_cube_last_state');
+            if (state) {
+                console.log("Загружено сохраненное состояние");
+                // TODO: Отправить в Unity для восстановления
+                return state;
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки:", e);
+        }
+        return null;
+    }
+    
+    saveStats() {
+        try {
+            localStorage.setItem('rubiks_cube_stats', JSON.stringify(this.gameStats));
+            console.log("Статистика сохранена");
+        } catch (e) {
+            console.error("Ошибка сохранения статистики:", e);
+        }
+    }
+    
+    loadStats() {
+        try {
+            const stats = localStorage.getItem('rubiks_cube_stats');
+            if (stats) {
+                this.gameStats = JSON.parse(stats);
+                console.log("Статистика загружена:", this.gameStats);
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки статистики:", e);
+        }
+    }
+    
+    saveSettings(settings) {
+        try {
+            localStorage.setItem('rubiks_cube_settings', JSON.stringify(settings));
+            console.log("Настройки сохранены");
+        } catch (e) {
+            console.error("Ошибка сохранения настроек:", e);
+        }
+    }
+    
+    loadSettings() {
+        try {
+            const settings = localStorage.getItem('rubiks_cube_settings');
+            if (settings) {
+                return JSON.parse(settings);
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки настроек:", e);
+        }
+        return null;
+    }
+
+    saveCurrentState() {
+        if (!this.isReady) return;
+        
+        if (confirm('Сохранить текущее состояние кубика?')) {
+            // Сохраняем в Unity, затем в localStorage через callback
+            this.sendToUnity('SaveCubeState');
+            console.log("Сохранение инициировано");
+        }
+    }
+    
+    loadSavedState() {
+        if (!this.isReady) return;
+        
+        if (confirm('Загрузить сохраненное состояние? Текущий прогресс будет потерян.')) {
+            const savedState = this.loadCubeState();
+            if (savedState) {
+                // TODO: Отправить в Unity для восстановления
+                console.log("Загрузка состояния:", savedState);
+                this.sendToUnity('LoadCubeState', savedState);
+            } else {
+                alert("Нет сохраненных состояний");
+            }
+        }
+    }
+    updateStatsDisplay() {
+        // Обновляем отображение статистики в интерфейсе
+        // TODO: Добавить элементы для отображения
+    }
 }
 
 // Глобальные функции для консоли
@@ -188,6 +302,36 @@ window.testUnity = function() {
     }
     
     console.log("✓ Система готова к работе");
+};
+
+// Глобальные утилиты для отладки
+window.saveCurrentCube = function() {
+    if (window.customUI) {
+        window.customUI.saveCurrentState();
+    }
+};
+
+window.loadSavedCube = function() {
+    if (window.customUI) {
+        window.customUI.loadSavedState();
+    }
+};
+
+window.clearAllData = function() {
+    if (confirm("Удалить ВСЕ сохраненные данные (состояния, статистику, настройки)?")) {
+        localStorage.removeItem('rubiks_cube_last_state');
+        localStorage.removeItem('rubiks_cube_stats');
+        localStorage.removeItem('rubiks_cube_settings');
+        console.log("Все данные очищены");
+    }
+};
+
+window.showStats = function() {
+    if (window.customUI) {
+        console.log("Текущая статистика:", window.customUI.gameStats);
+        const saved = localStorage.getItem('rubiks_cube_stats');
+        console.log("В localStorage:", saved ? JSON.parse(saved) : "нет данных");
+    }
 };
 
 // Инициализация

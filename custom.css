@@ -11,44 +11,52 @@ body {
     color: #fff;
     min-height: 100vh;
     overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Основной контейнер с фиксированными панелями */
+/* Основной контейнер - теперь центрируем всё */
 .app-container {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     min-height: 100vh;
     position: relative;
+    padding: 20px;
 }
 
-/* ЛЕВАЯ ПАНЕЛЬ - фиксированная */
+/* ЛЕВАЯ ПАНЕЛЬ - фиксированная слева от центра */
 .left-panel {
-    position: fixed;
-    top: 30px;
-    left: 30px;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     gap: 20px;
     z-index: 100;
 }
 
-/* ПРАВАЯ ПАНЕЛЬ - фиксированная */
+/* ПРАВАЯ ПАНЕЛЬ - фиксированная справа от центра */
 .right-panel {
-    position: fixed;
-    top: 30px;
-    right: 30px;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     gap: 15px;
     z-index: 100;
 }
 
-/* Центральная область для кубика */
+/* Центральная область для кубика - строго по центру */
 .unity-center {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    flex: 0 0 auto;
 }
 
 #unity-container {
@@ -177,26 +185,53 @@ body {
 }
 
 /* Адаптивность */
-@media (max-width: 900px) {
-    .app-container {
-        flex-direction: column;
-    }
-    
-    /* На мобильных делаем панели абсолютными поверх кубика */
+@media (max-width: 1100px) {
+    /* На планшетах уменьшаем расстояние */
     .left-panel {
-        position: absolute;
-        top: 10px;
         left: 10px;
-        flex-direction: row;
-        gap: 10px;
     }
     
     .right-panel {
-        position: absolute;
-        top: 10px;
         right: 10px;
+    }
+}
+
+@media (max-width: 900px) {
+    /* На мобильных делаем панели сверху и снизу */
+    .app-container {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+    
+    .left-panel {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
         flex-direction: row;
         gap: 10px;
+        width: auto;
+        background: rgba(22, 33, 62, 0.9);
+        padding: 10px;
+        border-radius: 15px;
+        z-index: 1000;
+    }
+    
+    .right-panel {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        flex-direction: row;
+        gap: 10px;
+        width: auto;
+        background: rgba(22, 33, 62, 0.9);
+        padding: 10px;
+        border-radius: 15px;
+        z-index: 1000;
     }
     
     .mode-selector {
@@ -205,8 +240,7 @@ body {
     }
     
     .unity-center {
-        padding-top: 80px; /* Отступ для кнопок */
-        padding-bottom: 20px;
+        margin-top: 20px;
     }
     
     #unity-canvas {
@@ -250,9 +284,4 @@ body {
         height: 45px;
         font-size: 18px;
     }
-}
-
-/* Убираем панель отладки */
-.debug-panel {
-    display: none !important;
 }
