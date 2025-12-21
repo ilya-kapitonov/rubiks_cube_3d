@@ -7,7 +7,8 @@ class CustomUI {
         
         // Настройки по умолчанию
         this.currentAlgorithm = 0; // 0 = Быстрый, 1 = Простой
-        this.currentSpeed = 1;
+        this.speedOptions = [1, 4, 8, 12];
+        this.currentSpeed = 1; // x1 по умолчанию
         this.currentColorScheme = 'classic';
         this.isAutoSolving = false;
         this.menuOpen = false;
@@ -176,6 +177,7 @@ class CustomUI {
         document.getElementById('helpBtn')?.addEventListener('click', () => {
             this.showHelp();
         });
+        this.setupWindows();
     }
     
     toggleMenu() {
@@ -474,6 +476,138 @@ class CustomUI {
         } catch (error) {
             console.error(`✗ Ошибка SendMessage:`, error);
         }
+    }
+ setupWindows() {
+        // Статистика
+        document.getElementById('statsBtn')?.addEventListener('click', () => {
+            this.showStatsWindow();
+        });
+        
+        document.getElementById('closeStatsBtn')?.addEventListener('click', () => {
+            this.hideStatsWindow();
+        });
+        
+        document.getElementById('statsOverlay')?.addEventListener('click', () => {
+            this.hideStatsWindow();
+        });
+        
+        // Справка
+        document.getElementById('helpBtn')?.addEventListener('click', () => {
+            this.showHelpWindow();
+        });
+        
+        document.getElementById('closeHelpBtn')?.addEventListener('click', () => {
+            this.hideHelpWindow();
+        });
+        
+        document.getElementById('helpOverlay')?.addEventListener('click', () => {
+            this.hideHelpWindow();
+        });
+        
+        // Кнопки в статистике
+        document.getElementById('clearAllStatsBtn')?.addEventListener('click', () => {
+            this.clearStats();
+        });
+    }
+    
+    // Управление окнами
+    showStatsWindow() {
+        document.getElementById('statsWindow').classList.add('active');
+        document.getElementById('statsOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        this.updateStatsWindow();
+    }
+    
+    hideStatsWindow() {
+        document.getElementById('statsWindow').classList.remove('active');
+        document.getElementById('statsOverlay').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    showHelpWindow() {
+        document.getElementById('helpWindow').classList.add('active');
+        document.getElementById('helpOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    hideHelpWindow() {
+        document.getElementById('helpWindow').classList.remove('active');
+        document.getElementById('helpOverlay').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Обновление окна статистики
+    updateStatsWindow() {
+        document.getElementById('statsTotalSolves').textContent = this.gameStats.totalSolves;
+        document.getElementById('statsBestTime').textContent = this.formatTime(this.gameStats.bestTime);
+        document.getElementById('statsAvgTime').textContent = this.calculateAverageTime();
+        document.getElementById('statsTotalMoves').textContent = this.gameStats.totalMoves;
+        
+        // Заполняем таблицу рекордов
+        this.fillRecordsTable();
+    }
+    
+    calculateAverageTime() {
+        if (this.gameStats.totalSolves === 0 || this.gameStats.bestRecords.length === 0) {
+            return "0:00";
+        }
+        
+        let totalTime = 0;
+        this.gameStats.bestRecords.forEach(record => {
+            totalTime += record.time;
+        });
+        
+        const avgTime = totalTime / Math.min(this.gameStats.bestRecords.length, 10);
+        return this.formatTime(avgTime);
+    }
+    
+    fillRecordsTable() {
+        const tableBody = document.getElementById('recordsTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = '';
+        
+        if (this.gameStats.bestRecords.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #4cc9f0;">Нет рекордов</td></tr>';
+            return;
+        }
+        
+        this.gameStats.bestRecords.forEach((record, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${this.formatTime(record.time)}</td>
+                <td>${record.moves || '—'}</td>
+                <td>${record.date || '—'}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    // Обновляем setSpeed для работы с новыми скоростями
+    setSpeed(speed) {
+        if (!this.speedOptions.includes(speed)) {
+            console.error(`Недопустимая скорость: ${speed}`);
+            return;
+        }
+        
+        this.currentSpeed = speed;
+        
+        // Обновляем UI
+        document.querySelectorAll('.speed-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
+        
+        // Отправляем в Unity
+        if (this.isReady) {
+            this.sendToUnity('SetCubeSpeed', speed);
+        }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлена скорость: x${speed}`);
     }
 }
 
