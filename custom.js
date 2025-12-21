@@ -16,7 +16,7 @@ class CustomUI {
         // Статистика
         this.gameStats = {
             totalSolves: 12,
-            bestTime: 145,
+            bestTime: 145, // 2:25 в секундах
             totalMoves: 583,
             bestRecords: [
                 { time: 145, moves: 42, date: '2024-01-15' },
@@ -64,14 +64,14 @@ class CustomUI {
         this.setupModeSelector();
         this.setupControlButtons();
         this.setupMenu();
-        this.setupSpeedDots(); // НОВОЕ: настройка точек скорости
+        this.setupSpeedDots();
         this.setupWindows();
         this.updateStatsDisplay();
         
         console.log("UI инициализирован");
     }
     
-    // ===== ТОЧКИ СКОРОСТИ =====
+     // ===== ТОЧКИ СКОРОСТИ =====
     setupSpeedDots() {
         document.querySelectorAll('.speed-dot').forEach(dot => {
             dot.addEventListener('click', (e) => {
@@ -81,63 +81,73 @@ class CustomUI {
         });
     }
     
-    // Обновленный метод setSpeed для работы с точками
-    setSpeed(speed) {
-        if (!this.speedOptions.includes(speed)) {
-            console.error(`Недопустимая скорость: ${speed}`);
-            return;
-        }
-        
-        this.currentSpeed = speed;
-        
-        // Обновляем UI точек
-        document.querySelectorAll('.speed-dot').forEach(dot => {
-            dot.classList.remove('active');
+    // ===== РЕЖИМЫ (A/P) =====
+    setupModeSelector() {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const oldMode = this.getCurrentMode();
+                const newMode = e.currentTarget.dataset.mode;
+                
+                // Снимаем активный класс со всех
+                document.querySelectorAll('.mode-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                // Добавляем активный класс выбранному
+                e.currentTarget.classList.add('active');
+                
+                console.log(`Режим изменен: ${oldMode} → ${newMode}`);
+                
+                // Обработка смены режима
+                this.handleModeChange(oldMode, newMode);
+            });
         });
-        document.querySelector(`.speed-dot[data-speed="${speed}"]`)?.classList.add('active');
-        
-        // Обновляем UI в меню (если оно еще используется где-то)
-        document.querySelectorAll('.speed-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
-        
-        // Отправляем в Unity
-        if (this.isReady) {
-            this.sendToUnity('SetCubeSpeed', speed);
-        }
-        
-        // Сохраняем настройки
-        this.saveSettings();
-        
-        console.log(`Установлена скорость: x${speed}`);
     }
     
-    // Обновленный applySavedSettings для точек скорости
-    applySavedSettings() {
-        // Применяем цветовую схему
-        this.sendToUnity('ApplyColorPreset', this.currentColorScheme);
-        
-        // Обновляем UI
-        document.querySelectorAll('.color-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`.color-option[data-scheme="${this.currentColorScheme}"]`)?.classList.add('active');
-        
-        document.querySelectorAll('.algorithm-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`.algorithm-option[data-algorithm="${this.currentAlgorithm}"]`)?.classList.add('active');
-        
-        // Обновляем точки скорости
-        document.querySelectorAll('.speed-dot').forEach(dot => {
-            dot.classList.remove('active');
-        });
-        document.querySelector(`.speed-dot[data-speed="${this.currentSpeed}"]`)?.classList.add('active');
+    getCurrentMode() {
+        const activeBtn = document.querySelector('.mode-btn.active');
+        return activeBtn ? activeBtn.dataset.mode : 'manual';
     }
     
-    // Остальной код остается таким же, за исключением setupMenu
-    setupMenu() {
+    handleModeChange(oldMode, newMode) {
+        // Если переключаемся из авторежима в ручной - останавливаем автосборку
+        if (oldMode === 'auto' && newMode === 'manual') {
+            this.stopAutoSolve();
+        }
+        // Если переключаемся из ручного в авторежим - запускаем автосборку
+        else if (oldMode === 'manual' && newMode === 'auto') {
+            this.startAutoSolve();
+        }
+    }
+    
+    // ===== КНОПКИ УПРАВЛЕНИЯ =====
+    setupControlButtons() {
+        // Кнопка перемешивания
+        document.getElementById('shuffleBtn')?.addEventListener('click', () => {
+            this.shuffleCube();
+        });
+        
+        // Кнопка отмены
+        document.getElementById('undoBtn')?.addEventListener('click', () => {
+            this.undoMove();
+        });
+        
+        // Кнопка подсказки
+        document.getElementById('hintBtn')?.addEventListener('click', () => {
+            this.showHint();
+        });
+        
+        // Кнопки сохранения/загрузки
+        document.getElementById('saveBtn')?.addEventListener('click', () => {
+            this.saveCurrentState();
+        });
+        
+        document.getElementById('loadBtn')?.addEventListener('click', () => {
+            this.loadSavedState();
+        });
+    }
+    
+    // ===== МЕНЮ =====
+     setupMenu() {
         const menuToggle = document.getElementById('menuToggle');
         const menuCloseBtn = document.getElementById('menuCloseBtn');
         const menuOverlay = document.getElementById('menuOverlay');
@@ -184,7 +194,149 @@ class CustomUI {
         });
     }
     
-    // Обновленный showHint для работы с подсказками в ручном режиме
+    toggleMenu() {
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        
+        this.menuOpen = !this.menuOpen;
+        
+        if (this.menuOpen) {
+            sideMenu.classList.add('open');
+            menuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            this.closeMenu();
+        }
+    }
+    
+    closeMenu() {
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        
+        this.menuOpen = false;
+        sideMenu.classList.remove('open');
+        menuOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // ===== НАСТРОЙКИ =====
+    setColorScheme(scheme) {
+        this.currentColorScheme = scheme;
+        
+        // Обновляем UI
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.color-option[data-scheme="${scheme}"]`)?.classList.add('active');
+        
+        // Отправляем в Unity
+        if (this.isReady) {
+            this.sendToUnity('ApplyColorPreset', scheme);
+        }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлена цветовая схема: ${scheme}`);
+    }
+    
+    setAlgorithm(algorithm) {
+        this.currentAlgorithm = algorithm;
+        
+        // Обновляем UI
+        document.querySelectorAll('.algorithm-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.algorithm-option[data-algorithm="${algorithm}"]`)?.classList.add('active');
+        
+        // Если в авторежиме и идет сборка - перезапускаем с новым алгоритмом
+        if (this.getCurrentMode() === 'auto' && this.isAutoSolving) {
+            this.stopAutoSolve();
+            setTimeout(() => this.startAutoSolve(), 500);
+        }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлен алгоритм: ${algorithm === 0 ? 'Быстрый' : 'Простой'}`);
+    }
+    
+     setSpeed(speed) {
+        if (!this.speedOptions.includes(speed)) {
+            console.error(`Недопустимая скорость: ${speed}`);
+            return;
+        }
+        
+        this.currentSpeed = speed;
+        
+        // Обновляем UI точек
+        document.querySelectorAll('.speed-dot').forEach(dot => {
+            dot.classList.remove('active');
+        });
+        document.querySelector(`.speed-dot[data-speed="${speed}"]`)?.classList.add('active');
+        
+        // Обновляем UI в меню (если оно еще используется где-то)
+        document.querySelectorAll('.speed-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        document.querySelector(`.speed-option[data-speed="${speed}"]`)?.classList.add('active');
+        
+        // Отправляем в Unity
+        if (this.isReady) {
+            this.sendToUnity('SetCubeSpeed', speed);
+        }
+        
+        // Сохраняем настройки
+        this.saveSettings();
+        
+        console.log(`Установлена скорость: x${speed}`);
+    }
+    
+    // ===== АВТОСБОРКА =====
+    startAutoSolve() {
+        if (!this.isReady) {
+            console.warn("Система не готова");
+            return;
+        }
+        
+        console.log(`Запуск автосборки алгоритмом: ${this.currentAlgorithm === 0 ? 'Быстрый' : 'Простой'}`);
+        this.sendToUnity('StartAutoSolve', this.currentAlgorithm);
+        this.isAutoSolving = true;
+    }
+    
+    stopAutoSolve() {
+        if (!this.isReady || !this.isAutoSolving) {
+            return;
+        }
+        
+        console.log("Остановка автосборки");
+        this.sendToUnity('StopAutoSolve');
+        this.isAutoSolving = false;
+    }
+    
+    // ===== ОСНОВНЫЕ МЕТОДЫ =====
+    shuffleCube() {
+        if (!this.isReady) {
+            console.warn("Система ещё не готова");
+            return;
+        }
+        
+        if (confirm('Перемешать кубик? Текущий прогресс будет сброшен.')) {
+            console.log("Начинаем перемешивание...");
+            this.sendToUnity('ShuffleCube');
+        }
+    }
+    
+    undoMove() {
+        if (!this.isReady) {
+            console.warn("Система ещё не готова");
+            return;
+        }
+        
+        console.log("Отмена последнего хода...");
+        this.sendToUnity('UndoMove');
+    }
+    
     showHint() {
         if (!this.isReady) {
             console.warn("Система ещё не готова");
@@ -308,7 +460,7 @@ class CustomUI {
         }
     }
     
-    applySavedSettings() {
+     applySavedSettings() {
         // Применяем цветовую схему
         this.sendToUnity('ApplyColorPreset', this.currentColorScheme);
         
@@ -323,10 +475,11 @@ class CustomUI {
         });
         document.querySelector(`.algorithm-option[data-algorithm="${this.currentAlgorithm}"]`)?.classList.add('active');
         
-        document.querySelectorAll('.speed-option').forEach(option => {
-            option.classList.remove('active');
+        // Обновляем точки скорости
+        document.querySelectorAll('.speed-dot').forEach(dot => {
+            dot.classList.remove('active');
         });
-        document.querySelector(`.speed-option[data-speed="${this.currentSpeed}"]`)?.classList.add('active');
+        document.querySelector(`.speed-dot[data-speed="${this.currentSpeed}"]`)?.classList.add('active');
     }
     
     // ===== КОММУНИКАЦИЯ С UNITY =====
