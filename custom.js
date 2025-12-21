@@ -147,15 +147,6 @@ class CustomUI {
         document.getElementById('hintBtn')?.addEventListener('click', () => {
             this.showHint();
         });
-        
-        // Кнопки сохранения/загрузки
-        document.getElementById('saveBtn')?.addEventListener('click', () => {
-            this.saveCurrentState();
-        });
-        
-        document.getElementById('loadBtn')?.addEventListener('click', () => {
-            this.loadSavedState();
-        });
     }
     
     // ===== МЕНЮ =====
@@ -195,6 +186,16 @@ class CustomUI {
         });
         
         // Кнопки меню
+        document.getElementById('menuSaveBtn')?.addEventListener('click', () => {
+            this.saveCurrentState();
+            this.closeMenu();
+        });
+        
+        document.getElementById('menuLoadBtn')?.addEventListener('click', () => {
+            this.loadSavedState();
+            this.closeMenu();
+        });
+
         document.getElementById('statsBtn')?.addEventListener('click', () => {
             this.showStatsWindow();
             this.closeMenu();

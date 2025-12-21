@@ -60,6 +60,8 @@ body {
     flex: 0 0 auto;
     flex-direction: column;
     gap: 20px;
+    position: relative;
+    min-height: 500px;
 }
 
 #unity-container {
@@ -88,6 +90,10 @@ body {
     border: 1px solid rgba(67, 97, 238, 0.3);
     backdrop-filter: blur(10px);
     min-width: 300px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .speed-label {
@@ -132,35 +138,12 @@ body {
     background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     border-color: #4cc9f0;
     box-shadow: 0 0 15px rgba(76, 201, 240, 0.6);
-    transform: scale(1.15);
 }
 
 .dot-number {
     font-size: 12px;
     font-weight: bold;
     color: white;
-}
-
-/* Эффект пульсации для активной точки */
-.speed-dot.active::before {
-    content: '';
-    position: absolute;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    border: 2px solid rgba(76, 201, 240, 0.3);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1.3);
-        opacity: 0;
-    }
 }
 
 /* Подсказки при наведении */
@@ -290,14 +273,6 @@ body {
 
 .hint-btn {
     background: linear-gradient(135deg, #ff9e00 0%, #ff9100 100%);
-}
-
-.save-btn {
-    background: linear-gradient(135deg, #7209b7 0%, #560bad 100%);
-}
-
-.load-btn {
-    background: linear-gradient(135deg, #f8961e 0%, #f3722c 100%);
 }
 
 /* ===== ВЫДВИЖНОЕ МЕНЮ ===== */
@@ -839,7 +814,7 @@ body {
         flex-direction: column;
         justify-content: flex-start;
         padding-top: 80px;
-        padding-bottom: 80px;
+        padding-bottom: 100px;
     }
     
     .left-panel {
@@ -950,6 +925,7 @@ body {
     
     .speed-panel {
         min-width: 220px;
+        padding: 8px 12px;
     }
     
     .speed-dots {
