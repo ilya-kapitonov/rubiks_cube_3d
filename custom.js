@@ -2,8 +2,6 @@ class CustomUI {
     constructor() {
         this.unityInstance = null;
         this.isReady = false;
-        this.moveHistory = [];
-        this.currentMoveIndex = -1;
         
         console.log("CustomUI создан");
         
@@ -144,13 +142,6 @@ class CustomUI {
         alert("Функция подсказки будет реализована в следующей версии");
     }
     
-    // Метод для добавления хода в историю (будет вызываться из Unity)
-    addMoveToHistory(moveData) {
-        this.moveHistory.push(moveData);
-        this.currentMoveIndex = this.moveHistory.length - 1;
-        console.log(`Ход добавлен в историю. Всего ходов: ${this.moveHistory.length}`);
-    }
-    
     // ===== УТИЛИТЫ =====
     
     sendToUnity(method, parameter = '') {
@@ -263,17 +254,9 @@ class CustomUI {
     }
     
     loadSavedState() {
-        if (!this.isReady) return;
-        
-        if (confirm('Загрузить сохраненное состояние? Текущий прогресс будет потерян.')) {
-            const savedState = this.loadCubeState();
-            if (savedState) {
-                // TODO: Отправить в Unity для восстановления
-                console.log("Загрузка состояния:", savedState);
-                this.sendToUnity('LoadCubeState', savedState);
-            } else {
-                alert("Нет сохраненных состояний");
-            }
+        const state = localStorage.getItem("rubiks_cube_last_state");
+        if (state) {
+            this.sendToUnity("LoadCubeState", state);
         }
     }
     updateStatsDisplay() {
@@ -311,13 +294,6 @@ window.saveCurrentCube = function() {
     }
 };
 
-window.loadCubeState = function () {
-    const state = localStorage.getItem("rubiks_cube_state");
-    if (state) {
-        SendMessage("CubeManager", "LoadCubeState", state);
-    }
-};
-
 window.clearAllData = function() {
     if (confirm("Удалить ВСЕ сохраненные данные (состояния, статистику, настройки)?")) {
         localStorage.removeItem('rubiks_cube_last_state');
@@ -336,8 +312,7 @@ window.showStats = function() {
 };
 
 window.saveCubeState = function (json) {
-    localStorage.setItem("rubiks_cube_state", json);
-    console.log("Cube state saved:", json);
+    localStorage.setItem("rubiks_cube_last_state", json);
 };
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
