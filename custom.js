@@ -15,10 +15,16 @@ class CustomUI {
         
         // Статистика
         this.gameStats = {
-            totalSolves: 0,
-            bestTime: 0,
-            totalMoves: 0,
-            bestRecords: []
+            totalSolves: 12,
+            bestTime: 145, // 2:25 в секундах
+            totalMoves: 583,
+            bestRecords: [
+                { time: 145, moves: 42, date: '2024-01-15' },
+                { time: 162, moves: 45, date: '2024-01-14' },
+                { time: 178, moves: 48, date: '2024-01-13' },
+                { time: 195, moves: 52, date: '2024-01-12' },
+                { time: 210, moves: 55, date: '2024-01-11' }
+            ]
         };
         
         // Загрузка сохраненных данных
@@ -55,9 +61,10 @@ class CustomUI {
         this.setupModeSelector();
         this.setupControlButtons();
         this.setupMenu();
+        this.setupWindows();
         this.updateStatsDisplay();
         
-        console.log("UI инициализирован ✓");
+        console.log("UI инициализирован");
     }
     
     // ===== РЕЖИМЫ (A/P) =====
@@ -169,14 +176,26 @@ class CustomUI {
             });
         });
         
-        // Кнопки меню
+    // Кнопка справки в меню
+        document.getElementById('helpBtn')?.addEventListener('click', () => {
+            this.showHelpWindow();
+            this.closeMenu();
+        });
+        
+        // Клик на заголовок статистики в меню
+        const statsTitle = document.querySelector('.stats-title');
+        if (statsTitle) {
+            statsTitle.addEventListener('click', () => {
+                this.showStatsWindow();
+                this.closeMenu();
+            });
+        }
+        
+        // Кнопка очистки статистики в меню
         document.getElementById('clearStatsBtn')?.addEventListener('click', () => {
             this.clearStats();
         });
         
-        document.getElementById('helpBtn')?.addEventListener('click', () => {
-            this.showHelp();
-        });
         this.setupWindows();
     }
     
@@ -362,21 +381,23 @@ class CustomUI {
     }
     
     clearStats() {
-        if (confirm("Очистить всю статистику?")) {
+        if (confirm("Очистить всю статистику и рекорды?")) {
             this.gameStats = {
                 totalSolves: 0,
                 bestTime: 0,
                 totalMoves: 0,
-                bestRecords: []
+                bestRecords: [] // Очищаем рекорды тоже
             };
             this.updateStatsDisplay();
+            this.updateStatsWindow(); // Обновляем окно статистики
             this.saveStats();
-            console.log("Статистика очищена");
+            console.log("Статистика и рекорды очищены");
         }
     }
     
     showHelp() {
-        alert("Справка будет реализована в следующей версии");
+        this.showHelpWindow();
+        this.closeMenu(); // Закрываем меню при открытии справки
     }
     
     // ===== СОХРАНЕНИЕ/ЗАГРУЗКА ДАННЫХ =====
@@ -477,39 +498,51 @@ class CustomUI {
             console.error(`✗ Ошибка SendMessage:`, error);
         }
     }
- setupWindows() {
-        // Статистика
-        document.getElementById('statsBtn')?.addEventListener('click', () => {
-            this.showStatsWindow();
+
+    setupWindows() {
+        // Статистика - из меню
+        document.getElementById('clearStatsBtn')?.addEventListener('click', () => {
+            this.clearStats();
         });
         
-        document.getElementById('closeStatsBtn')?.addEventListener('click', () => {
-            this.hideStatsWindow();
-        });
-        
-        document.getElementById('statsOverlay')?.addEventListener('click', () => {
-            this.hideStatsWindow();
-        });
-        
-        // Справка
+        // Справка - из меню
         document.getElementById('helpBtn')?.addEventListener('click', () => {
             this.showHelpWindow();
+        });
+        
+        // Закрытие окон
+        document.getElementById('closeStatsBtn')?.addEventListener('click', () => {
+            this.hideStatsWindow();
         });
         
         document.getElementById('closeHelpBtn')?.addEventListener('click', () => {
             this.hideHelpWindow();
         });
         
+        document.getElementById('statsOverlay')?.addEventListener('click', () => {
+            this.hideStatsWindow();
+        });
+        
         document.getElementById('helpOverlay')?.addEventListener('click', () => {
             this.hideHelpWindow();
         });
         
-        // Кнопки в статистике
+        // Очистка всей статистики (из окна статистики)
         document.getElementById('clearAllStatsBtn')?.addEventListener('click', () => {
             this.clearStats();
         });
+        
+        // Добавляем клик на заголовок "Статистика" в меню
+        const menuStatsTitle = document.querySelector('.menu-section h4');
+        if (menuStatsTitle && menuStatsTitle.textContent.includes('Статистика')) {
+            menuStatsTitle.style.cursor = 'pointer';
+            menuStatsTitle.addEventListener('click', () => {
+                this.showStatsWindow();
+                this.closeMenu();
+            });
+        }
     }
-    
+        
     // Управление окнами
     showStatsWindow() {
         document.getElementById('statsWindow').classList.add('active');
@@ -517,25 +550,25 @@ class CustomUI {
         document.body.style.overflow = 'hidden';
         this.updateStatsWindow();
     }
-    
+
     hideStatsWindow() {
         document.getElementById('statsWindow').classList.remove('active');
         document.getElementById('statsOverlay').classList.remove('active');
         document.body.style.overflow = 'auto';
     }
-    
+
     showHelpWindow() {
         document.getElementById('helpWindow').classList.add('active');
         document.getElementById('helpOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
     }
-    
+
     hideHelpWindow() {
         document.getElementById('helpWindow').classList.remove('active');
         document.getElementById('helpOverlay').classList.remove('active');
         document.body.style.overflow = 'auto';
     }
-    
+
     // Обновление окна статистики
     updateStatsWindow() {
         document.getElementById('statsTotalSolves').textContent = this.gameStats.totalSolves;
@@ -560,7 +593,7 @@ class CustomUI {
         const avgTime = totalTime / Math.min(this.gameStats.bestRecords.length, 10);
         return this.formatTime(avgTime);
     }
-    
+
     fillRecordsTable() {
         const tableBody = document.getElementById('recordsTableBody');
         if (!tableBody) return;
