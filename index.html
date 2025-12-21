@@ -11,241 +11,60 @@
     <link rel="stylesheet" href="custom.css">
 </head>
 <body>
-    <!-- Главный контейнер -->
-    <div class="app-container">
-        <!-- Заголовок и таймер -->
-        <div class="header">
-            <h1 class="title">Кубик Рубика 3D</h1>
-            <div class="timer-container">
-                <div class="timer" id="timer">00:00.00</div>
-                <button class="timer-control" id="timerControl" title="Пауза">
-                    <i class="fas fa-pause"></i>
-                </button>
-            </div>
+    <!-- Минимальный интерфейс -->
+    <div class="simple-ui">
+        <!-- Левые кнопки -->
+        <div class="left-controls">
+            <button class="icon-btn" id="menuToggle" title="Меню">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="icon-btn mode-btn" data-mode="auto" title="Автоматическая сборка">
+                <span>A</span>
+            </button>
+            <button class="icon-btn mode-btn" data-mode="manual" title="Ручная сборка">
+                <span>P</span>
+            </button>
         </div>
 
-        <!-- Основной контент -->
-        <div class="main-content">
-            <!-- Левая панель (меню и режимы) -->
-            <div class="left-panel">
-                <button class="hamburger-btn" id="menuToggle" title="Меню">
-                    <i class="fas fa-bars"></i>
-                </button>
-                
-                <div class="mode-selector">
-                    <div class="mode-btn active" data-mode="auto" title="Автоматическая сборка">
-                        <i class="fas fa-robot"></i>
-                        <span class="mode-label">A</span>
-                    </div>
-                    <div class="mode-btn" data-mode="manual" title="Ручная сборка">
-                        <i class="fas fa-hand-paper"></i>
-                        <span class="mode-label">P</span>
-                    </div>
+        <!-- Центр: кубик -->
+        <div id="unity-container" class="unity-desktop">
+            <canvas id="unity-canvas" width="500" height="500" tabindex="-1"></canvas>
+            <div id="unity-loading-bar">
+                <div id="unity-logo"></div>
+                <div id="unity-progress-bar-empty">
+                    <div id="unity-progress-bar-full"></div>
                 </div>
             </div>
-
-            <!-- Центр: Unity контейнер -->
-            <div class="unity-center">
-                <div id="unity-container" class="unity-desktop">
-                    <canvas id="unity-canvas" width="500" height="500" tabindex="-1"></canvas>
-                    <div id="unity-loading-bar">
-                        <div id="unity-logo"></div>
-                        <div id="unity-progress-bar-empty">
-                            <div id="unity-progress-bar-full"></div>
-                        </div>
-                    </div>
-                    <div id="unity-warning"></div>
-                </div>
-            </div>
-
-            <!-- Правая панель (управление) -->
-            <div class="right-panel">
-                <button class="control-btn shuffle-btn" id="shuffleBtn" title="Перемешать кубик">
-                    <i class="fas fa-random"></i> Перемешать
-                </button>
-                <button class="control-btn undo-btn" id="undoBtn" title="Шаг назад (Ctrl+Z)">
-                    <i class="fas fa-undo"></i> Шаг назад
-                </button>
-                <button class="control-btn hint-btn" id="hintBtn" title="Подсказка (1 шаг)">
-                    <i class="fas fa-lightbulb"></i> Подсказка
-                </button>
-            </div>
+            <div id="unity-warning"></div>
         </div>
 
-        <!-- Нижняя панель -->
-        <div class="bottom-panel">
-            <!-- Счетчик шагов -->
-            <div class="steps-counter">
-                <i class="fas fa-footsteps"></i>
-                <span class="steps-label">Шаги: </span>
-                <span class="steps-value" id="stepsCounter">0</span>
-            </div>
-            
-            <!-- Ползунок скорости -->
-            <div class="speed-control-compact">
-                <span class="speed-label">Скорость анимации:</span>
-                <div class="speed-slider" id="speedSlider">
-                    <div class="speed-track"></div>
-                    <div class="speed-thumb" id="speedThumb"></div>
-                    <div class="speed-markers">
-                        <div class="speed-marker" data-speed="1"></div>
-                        <div class="speed-marker" data-speed="4"></div>
-                        <div class="speed-marker" data-speed="8"></div>
-                        <div class="speed-marker" data-speed="12"></div>
-                    </div>
-                </div>
-                <div class="speed-value" id="speedValue">x1</div>
-            </div>
+        <!-- Правые кнопки -->
+        <div class="right-controls">
+            <button class="icon-btn" id="resetBtn" title="Сброс">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button class="icon-btn" id="hintBtn" title="Подсказка">
+                <i class="fas fa-lightbulb"></i>
+            </button>
+            <button class="icon-btn" id="undoBtn" title="Шаг назад">
+                <i class="fas fa-undo"></i>
+            </button>
         </div>
 
-        <!-- Боковое меню -->
-        <div class="side-menu" id="sideMenu">
-            <div class="menu-header">
-                <h3><i class="fas fa-sliders-h"></i> МЕНЮ</h3>
-                <button class="close-btn" id="closeMenu">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="menu-section">
-                <h4 class="menu-item" id="toggleCustomization">
-                    <i class="fas fa-palette"></i> Кастомизация кубика
-                </h4>
-                <div class="color-customization" id="colorCustomization">
-                    <!-- Пресеты цветов -->
-                    <div class="color-presets">
-                        <div class="color-preset-btn active" data-preset="classic" title="Классические цвета">
-                            <div class="preset-colors">
-                                <span style="background: #FFFFFF"></span>
-                                <span style="background: #FFD500"></span>
-                                <span style="background: #009B48"></span>
-                                <span style="background: #0046AD"></span>
-                                <span style="background: #B71234"></span>
-                                <span style="background: #FF5800"></span>
-                            </div>
-                            <span>Классический</span>
-                        </div>
-                        
-                        <div class="color-preset-btn" data-preset="bright_pastel" title="Яркие пастельные">
-                            <div class="preset-colors">
-                                <span style="background: #FFE5E5"></span>
-                                <span style="background: #FFE5B4"></span>
-                                <span style="background: #B4FFB4"></span>
-                                <span style="background: #B4E1FF"></span>
-                                <span style="background: #FFB4FF"></span>
-                                <span style="background: #E1B4FF"></span>
-                            </div>
-                            <span>Пастельный</span>
-                        </div>
-                        
-                        <div class="color-preset-btn" data-preset="neon" title="Неоновые цвета">
-                            <div class="preset-colors">
-                                <span style="background: #FFFFFF"></span>
-                                <span style="background: #FFFF00"></span>
-                                <span style="background: #00FF00"></span>
-                                <span style="background: #00FFFF"></span>
-                                <span style="background: #FF00FF"></span>
-                                <span style="background: #FF0000"></span>
-                            </div>
-                            <span>Неоновый</span>
-                        </div>
-                        
-                        <div class="color-preset-btn" data-preset="monochrome" title="Монохромная схема">
-                            <div class="preset-colors">
-                                <span style="background: #F0F0F0"></span>
-                                <span style="background: #C0C0C0"></span>
-                                <span style="background: #909090"></span>
-                                <span style="background: #606060"></span>
-                                <span style="background: #303030"></span>
-                                <span style="background: #101010"></span>
-                            </div>
-                            <span>Монохромный</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Пользовательская схема -->
-                    <div class="custom-scheme-section">
-                        <h5>Своя цветовая схема:</h5>
-                        <div class="cube-net" id="cubeNet">
-                            <div class="net-cell" data-face="up"></div>
-                            <div class="net-row">
-                                <div class="net-cell" data-face="left"></div>
-                                <div class="net-cell" data-face="front"></div>
-                                <div class="net-cell" data-face="right"></div>
-                                <div class="net-cell" data-face="back"></div>
-                            </div>
-                            <div class="net-cell" data-face="down"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="menu-section">
-                <h4 class="menu-item">
-                    <i class="fas fa-cogs"></i> Алгоритм сборки
-                </h4>
-                <div class="algorithm-selector">
-                    <label class="radio-option">
-                        <input type="radio" name="algorithm" value="quick" checked>
-                        <span class="radio-checkmark"></span>
-                        <span class="radio-label">Быстрая сборка</span>
-                    </label>
-                    
-                    <label class="radio-option">
-                        <input type="radio" name="algorithm" value="cross">
-                        <span class="radio-checkmark"></span>
-                        <span class="radio-label">Поэтапная сборка</span>
-                    </label>
-                </div>
-            </div>
-            
-            <div class="menu-section">
-                <h4 class="menu-item" id="toggleStats">Статистика</h4>
-            </div>
-            
-            <div class="menu-section">
-                <button class="menu-btn" id="saveState">
-                    <i class="fas fa-save"></i> Сохранить состояние кубика
-                </button>
-                <button class="menu-btn" id="loadState">
-                    <i class="fas fa-folder-open"></i> Загрузить последнее сохранение
-                </button>
-            </div>
-            
-            <div class="menu-section">
-                <button class="menu-btn" id="helpBtn">
-                    <i class="fas fa-question-circle"></i> Справочная информация
-                </button>
-            </div>
-        </div>
-
-        <!-- Модальное окно выбора цвета -->
-        <div class="color-modal" id="colorModal">
-            <div class="color-modal-content">
-                <div class="color-modal-header">
-                    <h4>Выберите цвет</h4>
-                    <button class="close-modal" id="closeColorModal">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="color-palette" id="colorPalette">
-                    <!-- Генерируется через JS -->
-                </div>
-                <div class="color-preview-container">
-                    <div class="color-preview" id="colorPreview"></div>
-                    <input type="text" class="color-input" id="colorInput" value="#FF0000" maxlength="7">
-                </div>
-                <div class="color-modal-buttons">
-                    <button class="modal-btn cancel-btn" id="cancelColor">Отмена</button>
-                    <button class="modal-btn confirm-btn" id="applyColor">Применить</button>
-                </div>
+        <!-- Панель отладки -->
+        <div class="debug-panel">
+            <div class="debug-info">
+                <span id="debugStatus">Unity не загружен</span>
+                <button id="testSpeed1" class="debug-btn">Тест скорости x1</button>
+                <button id="testSpeed4" class="debug-btn">Тест скорости x4</button>
+                <button id="testShuffle" class="debug-btn">Тест перемешивания</button>
+                <button id="testColors" class="debug-btn">Тест цветов</button>
             </div>
         </div>
     </div>
 
     <!-- Unity скрипт -->
     <script>
-        // Unity конфигурация (увеличили до 500px)
         var container = document.querySelector("#unity-container");
         var canvas = document.querySelector("#unity-canvas");
         var loadingBar = document.querySelector("#unity-loading-bar");
@@ -263,7 +82,7 @@
             productVersion: "1.0",
         };
 
-        // Адаптация под мобильные устройства
+        // Адаптация
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             var meta = document.createElement('meta');
             meta.name = 'viewport';
@@ -272,14 +91,12 @@
             container.className = "unity-mobile";
             canvas.className = "unity-mobile";
         } else {
-            // Увеличиваем размер для более крупного кубика
             canvas.style.width = "500px";
             canvas.style.height = "500px";
         }
 
         loadingBar.style.display = "block";
 
-        // Загрузка Unity
         var script = document.createElement("script");
         script.src = loaderUrl;
         script.onload = () => {
@@ -287,12 +104,24 @@
                 progressBarFull.style.width = 100 * progress + "%";
             }).then((unityInstance) => {
                 loadingBar.style.display = "none";
+                
+                // КРИТИЧНО: устанавливаем глобальную переменную
                 window.unityInstance = unityInstance;
-                if (window.customUI && window.customUI.onUnityReady) {
-                    window.customUI.onUnityReady(unityInstance);
+                console.log("Unity загружен, instance готов");
+                
+                // Уведомляем UI, что Unity готов
+                if (window.onUnityReady) {
+                    window.onUnityReady(unityInstance);
                 }
+                
+                // Обновляем статус
+                const status = document.getElementById('debugStatus');
+                if (status) status.textContent = "Unity загружен ✓";
+                
             }).catch((message) => {
                 alert("Ошибка загрузки Unity: " + message);
+                const status = document.getElementById('debugStatus');
+                if (status) status.textContent = "Ошибка загрузки Unity";
             });
         };
         document.body.appendChild(script);

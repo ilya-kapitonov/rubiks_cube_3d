@@ -1,4 +1,4 @@
-/* ===== СБРОС И БАЗОВЫЕ СТИЛИ ===== */
+/* Базовые стили */
 * {
     margin: 0;
     padding: 0;
@@ -10,434 +10,133 @@ body {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #fff;
     min-height: 100vh;
-    overflow-x: hidden;
-}
-
-.app-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* ===== ШАПКА ===== */
-
-.timer-container {
     display: flex;
     align-items: center;
-    gap: 15px;
+    justify-content: center;
 }
 
-.timer {
-    font-family: 'Courier New', monospace;
-    font-size: 2.2rem;
-    font-weight: bold;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 12px 24px;
-    border-radius: 12px;
-    border: 2px solid #4cc9f0;
-    box-shadow: 0 0 15px rgba(76, 201, 240, 0.4);
-    min-width: 160px;
-    text-align: center;
-    letter-spacing: 2px;
+.simple-ui {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+    position: relative;
 }
 
-.timer-control {
-    width: 50px;
-    height: 50px;
+/* Кнопки */
+.icon-btn {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     border: none;
     color: white;
-    font-size: 20px;
+    font-size: 24px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(58, 12, 163, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 10px 0;
 }
 
-.timer-control:hover {
+.icon-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(58, 12, 163, 0.6);
 }
 
-.timer-control.running i {
-    transform: rotate(0deg);
+.icon-btn.active {
+    background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+    box-shadow: 0 0 25px rgba(76, 201, 240, 0.6);
 }
 
-.timer-control.paused i {
-    transform: rotate(90deg);
+.icon-btn span {
+    font-weight: bold;
+    font-size: 20px;
 }
 
-/* ===== ОСНОВНОЙ КОНТЕНТ ===== */
-.main-content {
-    position: relative;
-    flex: 1;
-}
-
-/* Центрируем Unity абсолютно */
-.unity-center {
-    position: absolute;
-    inset: 0;
+/* Группы кнопок */
+.left-controls, .right-controls {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    pointer-events: none; /* важно */
+    gap: 10px;
 }
 
+/* Контейнер Unity */
 #unity-container {
-    pointer-events: auto;
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 #unity-canvas {
     width: 500px !important;
     height: 500px !important;
     display: block;
-    /* Убираем белый фон вокруг кубика */
     background: transparent !important;
 }
 
-/* Панели управления */
-.left-panel {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    align-items: flex-start;
-}
-
-.right-panel {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-}
-
-/* Кнопки управления */
-.control-btn {
+/* Панель отладки */
+.debug-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
     padding: 15px 25px;
-    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    border-radius: 10px;
+    border: 1px solid #4361ee;
+    z-index: 1000;
+    min-width: 300px;
+}
+
+.debug-info {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 4px 15px rgba(58, 12, 163, 0.4);
-    min-width: 140px;
 }
 
-.control-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(58, 12, 163, 0.6);
-}
-
-.control-btn:active {
-    transform: translateY(-1px);
-}
-
-.control-btn i {
-    font-size: 24px;
-}
-
-/* Кнопка меню */
-.hamburger-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(58, 12, 163, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hamburger-btn:hover {
-    transform: rotate(90deg) scale(1.1);
-    box-shadow: 0 6px 20px rgba(58, 12, 163, 0.6);
-}
-
-/* Переключатель режимов */
-.mode-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.mode-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+#debugStatus {
     background: rgba(67, 97, 238, 0.2);
-    border: 2px solid rgba(67, 97, 238, 0.5);
-    color: #4cc9f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.mode-btn.active {
-    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-    border-color: #4cc9f0;
-    color: white;
-    box-shadow: 0 0 25px rgba(76, 201, 240, 0.6);
-    transform: scale(1.05);
-}
-
-.mode-btn:hover:not(.active) {
-    border-color: rgba(76, 201, 240, 0.7);
-    background: rgba(76, 201, 240, 0.1);
-}
-
-.mode-btn i {
-    font-size: 20px;
-    margin-bottom: 4px;
-}
-
-.mode-label {
-    font-size: 14px;
-    font-weight: bold;
-}
-
-/* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
-.bottom-panel {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 40px;
-    margin-top: 20px;
-    background: rgba(25, 25, 35, 0.7);
-    border-radius: 15px;
-    border: 1px solid rgba(67, 97, 238, 0.3);
-}
-
-.steps-counter {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 20px;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 12px 25px;
-    border-radius: 12px;
-    min-width: 200px;
-}
-
-.steps-counter i {
-    color: #4cc9f0;
-    font-size: 22px;
-}
-
-.steps-value {
-    font-weight: bold;
-    color: #4cc9f0;
-    font-size: 24px;
+    padding: 8px 15px;
+    border-radius: 6px;
     font-family: 'Courier New', monospace;
+    flex-grow: 1;
 }
 
-/* Компактный ползунок скорости */
-.speed-control-compact {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    min-width: 400px;
-}
-
-.speed-label {
-    font-size: 16px;
-    color: #aaa;
-    white-space: nowrap;
-}
-
-.speed-slider {
-    position: relative;
-    width: 250px;
-    height: 35px;
-    cursor: pointer;
-}
-
-.speed-track {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    transform: translateY(-50%);
-}
-
-.speed-thumb {
-    position: absolute;
-    top: 50%;
-    left: 0%;
-    width: 24px;
-    height: 24px;
+.debug-btn {
+    padding: 8px 15px;
     background: #4cc9f0;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    cursor: grab;
-    box-shadow: 0 0 15px rgba(76, 201, 240, 0.9);
-    z-index: 2;
-    transition: all 0.2s ease;
-}
-
-.speed-thumb:hover {
-    transform: translate(-50%, -50%) scale(1.3);
-}
-
-.speed-thumb:active {
-    cursor: grabbing;
-    transform: translate(-50%, -50%) scale(1.2);
-}
-
-.speed-markers {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
-}
-
-.speed-marker {
-    position: absolute;
-    top: 50%;
-    width: 12px;
-    height: 12px;
-    background: rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.speed-marker:hover {
-    background: rgba(76, 201, 240, 0.8);
-    transform: translate(-50%, -50%) scale(1.3);
-}
-
-.speed-marker:nth-child(1) { left: 0%; }
-.speed-marker:nth-child(2) { left: 33.33%; }
-.speed-marker:nth-child(3) { left: 66.66%; }
-.speed-marker:nth-child(4) { left: 100%; }
-
-.speed-value {
-    font-size: 18px;
+    border: none;
+    border-radius: 6px;
+    color: #16213e;
     font-weight: bold;
-    color: #4cc9f0;
-    min-width: 50px;
-    text-align: center;
-    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
 }
 
-/* ===== БОКОВОЕ МЕНЮ ===== */
-.side-menu {
-    position: fixed;
-    top: 0;
-    left: -350px;
-    width: 320px;
-    height: 100%;
-    background: rgba(25, 25, 35, 0.98);
-    backdrop-filter: blur(10px);
-    padding: 20px;
-    z-index: 1000;
-    transition: left 0.3s ease;
-    border-right: 2px solid #4361ee;
-    overflow-y: auto;
+.debug-btn:hover {
+    background: #3a0ca3;
+    color: white;
 }
 
-.side-menu.active {
-    left: 0;
-}
-
-/* ... (остальные стили меню остаются такими же, как в предыдущей версии) ... */
-
-/* ===== АДАПТИВНОСТЬ ===== */
-@media (max-width: 1200px) {
-    .main-content {
+/* Адаптивность */
+@media (max-width: 900px) {
+    .simple-ui {
+        flex-direction: column;
         gap: 20px;
     }
     
-    .unity-center {
-        min-height: 450px;
-    }
-    
-    #unity-canvas {
-        width: 450px !important;
-        height: 450px !important;
-    }
-    
-    .speed-control-compact {
-        min-width: 350px;
-    }
-    
-    .speed-slider {
-        width: 200px;
-    }
-}
-
-@media (max-width: 992px) {
-    .main-content {
-        flex-direction: column;
-        gap: 30px;
-    }
-    
-    .left-panel, .right-panel {
+    .left-controls, .right-controls {
         flex-direction: row;
-        justify-content: center;
-        width: 100%;
-        gap: 30px;
-    }
-    
-    .mode-selector {
-        flex-direction: row;
-        gap: 30px;
-    }
-    
-    .bottom-panel {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-    
-    .speed-control-compact {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-    
-    .title {
-        font-size: 2rem;
-    }
-    
-    .timer {
-        font-size: 1.8rem;
-        min-width: 140px;
-    }
-    
-    .unity-center {
-        min-height: 400px;
+        gap: 15px;
     }
     
     #unity-canvas {
@@ -445,43 +144,27 @@ body {
         height: 400px !important;
     }
     
-    .control-btn {
-        min-width: 120px;
-        padding: 12px 20px;
-        font-size: 14px;
-    }
-    
-    .side-menu {
-        width: 280px;
+    .debug-panel {
+        width: 90%;
+        left: 5%;
+        transform: none;
     }
 }
 
-@media (max-width: 576px) {
-    .app-container {
-        padding: 10px;
-    }
-    
+@media (max-width: 500px) {
     #unity-canvas {
-        width: 350px !important;
-        height: 350px !important;
+        width: 300px !important;
+        height: 300px !important;
     }
     
-    .control-btn {
-        min-width: 100px;
-        padding: 10px 15px;
+    .icon-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .debug-panel {
+        padding: 10px;
         font-size: 12px;
-    }
-    
-    .steps-counter {
-        font-size: 16px;
-        min-width: 160px;
-    }
-    
-    .speed-control-compact {
-        min-width: 300px;
-    }
-    
-    .speed-slider {
-        width: 180px;
     }
 }
