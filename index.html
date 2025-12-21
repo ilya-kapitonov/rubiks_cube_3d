@@ -101,6 +101,9 @@
                         <span>Монохромная</span>
                     </div>
                 </div>
+                 <h4 class="menu-section-title" id="customizeColorsBtn" style="cursor: pointer;">
+                    <i class="fas fa-paint-brush"></i> Своя настройка цветов
+                </h4>
             </div>
             
             <div class="menu-section">
@@ -292,6 +295,110 @@
                 <h4>Алгоритмы сборки</h4>
                 <p><strong>Быстрый</strong> - последовательность L R L R (4 хода)</p>
                 <p><strong>Простой</strong> - последовательность L L L (3 хода)</p>
+            </div>
+        </div>
+    </div>
+    <!-- Окно настройки цветов -->
+    <div class="window-overlay" id="colorsOverlay"></div>
+    <div class="overlay-window custom-colors-window" id="colorsWindow">
+        <div class="overlay-header">
+            <h3><i class="fas fa-palette"></i> Своя настройка цветов</h3>
+            <button class="overlay-close-btn" id="closeColorsBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="overlay-content">
+            <!-- Развертка кубика -->
+            <div class="cube-net-container">
+                <div class="net-label top">Верх (U)</div>
+                <div class="cube-net">
+                    <div class="net-row">
+                        <div class="net-cell" data-face="up" style="background: #FFFFFF;" title="Верхняя грань">
+                            <div class="cell-label">Верх</div>
+                        </div>
+                    </div>
+                    <div class="net-row">
+                        <div class="net-cell" data-face="left" style="background: #FFD500;" title="Левая грань">
+                            <div class="cell-label">Лево</div>
+                        </div>
+                        <div class="net-cell" data-face="front" style="background: #009B48;" title="Передняя грань">
+                            <div class="cell-label">Перед</div>
+                        </div>
+                        <div class="net-cell" data-face="right" style="background: #0046AD;" title="Правая грань">
+                            <div class="cell-label">Право</div>
+                        </div>
+                        <div class="net-cell" data-face="back" style="background: #B71234;" title="Задняя грань">
+                            <div class="cell-label">Зад</div>
+                        </div>
+                    </div>
+                    <div class="net-row">
+                        <div class="net-cell" data-face="down" style="background: #FF5800;" title="Нижняя грань">
+                            <div class="cell-label">Низ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Палитра цветов -->
+            <div class="color-picker-section">
+                <h4><i class="fas fa-eye-dropper"></i> Выберите цвет</h4>
+                <div class="color-picker-container">
+                    <!-- RGB слайдеры -->
+                    <div class="rgb-sliders">
+                        <div class="slider-group">
+                            <label>Красный (R): <span id="redValue">255</span></label>
+                            <input type="range" min="0" max="255" value="255" class="color-slider red-slider" id="redSlider">
+                        </div>
+                        <div class="slider-group">
+                            <label>Зеленый (G): <span id="greenValue">0</span></label>
+                            <input type="range" min="0" max="255" value="0" class="color-slider green-slider" id="greenSlider">
+                        </div>
+                        <div class="slider-group">
+                            <label>Синий (B): <span id="blueValue">0</span></label>
+                            <input type="range" min="0" max="255" value="0" class="color-slider blue-slider" id="blueSlider">
+                        </div>
+                    </div>
+                    
+                    <!-- Предпросмотр цвета -->
+                    <div class="color-preview-area">
+                        <div class="color-preview-box" id="colorPreviewBox" style="background: #FF0000;"></div>
+                        <div class="color-info">
+                            <div class="color-hex">HEX: <span id="colorHex">#FF0000</span></div>
+                            <div class="color-rgb">RGB: <span id="colorRgb">rgb(255, 0, 0)</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Быстрые цвета -->
+                <div class="quick-colors">
+                    <h5>Быстрые цвета:</h5>
+                    <div class="quick-color-grid">
+                        <div class="quick-color" style="background: #FFFFFF;" data-color="#FFFFFF"></div>
+                        <div class="quick-color" style="background: #FFD500;" data-color="#FFD500"></div>
+                        <div class="quick-color" style="background: #009B48;" data-color="#009B48"></div>
+                        <div class="quick-color" style="background: #0046AD;" data-color="#0046AD"></div>
+                        <div class="quick-color" style="background: #B71234;" data-color="#B71234"></div>
+                        <div class="quick-color" style="background: #FF5800;" data-color="#FF5800"></div>
+                        <div class="quick-color" style="background: #FF0000;" data-color="#FF0000"></div>
+                        <div class="quick-color" style="background: #00FF00;" data-color="#00FF00"></div>
+                        <div class="quick-color" style="background: #0000FF;" data-color="#0000FF"></div>
+                    </div>
+                </div>
+                
+                <div class="warning-message" id="colorWarning" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Цвет слишком похож на уже существующий! Минимальная разница: <span id="minDiff">0</span>%</span>
+                </div>
+                
+                <!-- Кнопки управления -->
+                <div class="color-buttons">
+                    <button class="menu-btn" id="applyColorBtn">
+                        <i class="fas fa-check"></i> Применить к выбранной грани
+                    </button>
+                    <button class="menu-btn secondary-btn" id="resetColorsBtn">
+                        <i class="fas fa-undo"></i> Сбросить к классическим
+                    </button>
+                </div>
             </div>
         </div>
     </div>

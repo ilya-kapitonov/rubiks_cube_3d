@@ -25,6 +25,16 @@ class CustomUI {
                 { time: 210, moves: 55, date: '2024-01-11' }
             ]
         };
+
+        this.selectedFace = 'up';
+        this.customColors = {
+            up: '#FFFFFF',
+            left: '#FFD500', 
+            front: '#009B48',
+            right: '#0046AD',
+            back: '#B71234',
+            down: '#FF5800'
+        };
         
         // Загрузка сохраненных данных
         this.loadSettings();
@@ -64,6 +74,7 @@ class CustomUI {
         this.setupControlButtons();
         this.setupMenu();
         this.setupSpeedSlider();
+        this.setupCustomColors();
         this.setupWindows();
         this.updateStatsDisplay();
         
@@ -652,6 +663,314 @@ class CustomUI {
         
         console.log(`Установлена скорость: x${speed}`);
     }
+
+    setupCustomColors() {
+    // Кнопка открытия окна
+    document.getElementById('customizeColorsBtn')?.addEventListener('click', () => {
+        this.showColorsWindow();
+        this.closeMenu();
+    });
+    
+    // Закрытие окна
+    document.getElementById('closeColorsBtn')?.addEventListener('click', () => {
+        this.hideColorsWindow();
+    });
+    
+    document.getElementById('colorsOverlay')?.addEventListener('click', () => {
+        this.hideColorsWindow();
+    });
+    
+    // Выбор грани в развертке
+    document.querySelectorAll('.net-cell').forEach(cell => {
+        cell.addEventListener('click', (e) => {
+            const face = e.currentTarget.dataset.face;
+            this.selectFace(face);
+        });
+    });
+    
+    // RGB слайдеры
+    const sliders = ['redSlider', 'greenSlider', 'blueSlider'];
+    sliders.forEach(sliderId => {
+        document.getElementById(sliderId)?.addEventListener('input', (e) => {
+            this.updateColorFromSliders();
+        });
+    });
+    
+    // Быстрые цвета
+    document.querySelectorAll('.quick-color').forEach(colorBtn => {
+        colorBtn.addEventListener('click', (e) => {
+            const color = e.currentTarget.dataset.color;
+            this.setColorFromQuickPick(color);
+        });
+    });
+    
+    // Кнопки
+    document.getElementById('applyColorBtn')?.addEventListener('click', () => {
+        this.applyColorToFace();
+    });
+    
+    document.getElementById('resetColorsBtn')?.addEventListener('click', () => {
+        this.resetCustomColors();
+    });
+    
+    // Загружаем сохраненные цвета
+    this.loadCustomColors();
+}
+
+    selectFace(face) {
+        this.selectedFace = face;
+        
+        // Убираем выделение со всех
+        document.querySelectorAll('.net-cell').forEach(cell => {
+            cell.classList.remove('selected');
+        });
+        
+        // Выделяем выбранную
+        const selectedCell = document.querySelector(`.net-cell[data-face="${face}"]`);
+        if (selectedCell) {
+            selectedCell.classList.add('selected');
+            
+            // Устанавливаем текущий цвет грани в RGB слайдеры
+            const color = this.customColors[face] || '#FFFFFF';
+            this.setColorToSliders(color);
+        }
+    }
+
+    setColorToSliders(colorHex) {
+        // Конвертируем HEX в RGB
+        const r = parseInt(colorHex.slice(1, 3), 16);
+        const g = parseInt(colorHex.slice(3, 5), 16);
+        const b = parseInt(colorHex.slice(5, 7), 16);
+        
+        // Устанавливаем слайдеры
+        document.getElementById('redSlider').value = r;
+        document.getElementById('greenSlider').value = g;
+        document.getElementById('blueSlider').value = b;
+        
+        // Обновляем значения
+        document.getElementById('redValue').textContent = r;
+        document.getElementById('greenValue').textContent = g;
+        document.getElementById('blueValue').textContent = b;
+        
+        // Обновляем предпросмотр
+        this.updateColorPreview(r, g, b);
+    }
+
+    updateColorFromSliders() {
+        const r = parseInt(document.getElementById('redSlider').value);
+        const g = parseInt(document.getElementById('greenSlider').value);
+        const b = parseInt(document.getElementById('blueSlider').value);
+        
+        // Обновляем значения
+        document.getElementById('redValue').textContent = r;
+        document.getElementById('greenValue').textContent = g;
+        document.getElementById('blueValue').textContent = b;
+        
+        // Обновляем предпросмотр
+        this.updateColorPreview(r, g, b);
+    }
+
+    updateColorPreview(r, g, b) {
+        const hex = this.rgbToHex(r, g, b);
+        const rgbText = `rgb(${r}, ${g}, ${b})`;
+        
+        document.getElementById('colorPreviewBox').style.background = hex;
+        document.getElementById('colorHex').textContent = hex;
+        document.getElementById('colorRgb').textContent = rgbText;
+        
+        // Проверяем схожесть с другими цветами
+        this.checkColorSimilarity(hex);
+    }
+
+    rgbToHex(r, g, b) {
+        return '#' + [r, g, b].map(x => {
+            const hex = x.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        }).join('');
+    }
+
+    setColorFromQuickPick(colorHex) {
+        this.setColorToSliders(colorHex);
+    }
+
+    applyColorToFace() {
+        if (!this.selectedFace) return;
+        
+        // Получаем цвет из предпросмотра
+        const hexColor = document.getElementById('colorHex').textContent;
+        
+        // Проверяем, не слишком ли похож цвет на другие
+        if (!this.isColorValid(hexColor)) {
+            alert('Цвет слишком похож на уже существующий! Выберите другой оттенок.');
+            return;
+        }
+        
+        // Сохраняем цвет
+        this.customColors[this.selectedFace] = hexColor;
+        
+        // Обновляем отображение
+        const selectedCell = document.querySelector(`.net-cell[data-face="${this.selectedFace}"]`);
+        if (selectedCell) {
+            selectedCell.style.background = hexColor;
+        }
+        
+        // Сохраняем в localStorage
+        this.saveCustomColors();
+        
+        // Показываем подтверждение
+        const faceNames = {
+            up: 'Верхняя',
+            left: 'Левая',
+            front: 'Передняя', 
+            right: 'Правая',
+            back: 'Задняя',
+            down: 'Нижняя'
+        };
+        
+        console.log(`Цвет грани "${faceNames[this.selectedFace]}" изменен на: ${hexColor}`);
+    }
+
+    // Проверка схожести цветов
+    checkColorSimilarity(colorHex) {
+        const rgb1 = this.hexToRgb(colorHex);
+        const warningElement = document.getElementById('colorWarning');
+        
+        let minDiff = 100; // Максимальная разница в процентах
+        
+        // Сравниваем со всеми остальными цветами
+        for (const [face, savedColor] of Object.entries(this.customColors)) {
+            if (face === this.selectedFace) continue;
+            
+            const rgb2 = this.hexToRgb(savedColor);
+            const diff = this.calculateColorDifference(rgb1, rgb2);
+            
+            if (diff < minDiff) {
+                minDiff = diff;
+            }
+        }
+        
+        // Показываем/скрываем предупреждение
+        if (minDiff < 20) { // Порог 20%
+            warningElement.style.display = 'flex';
+            document.getElementById('minDiff').textContent = minDiff.toFixed(1);
+        } else {
+            warningElement.style.display = 'none';
+        }
+    }
+
+    isColorValid(colorHex) {
+        const rgb1 = this.hexToRgb(colorHex);
+        
+        for (const [face, savedColor] of Object.entries(this.customColors)) {
+            if (face === this.selectedFace) continue;
+            
+            const rgb2 = this.hexToRgb(savedColor);
+            const diff = this.calculateColorDifference(rgb1, rgb2);
+            
+            if (diff < 15) { // Порог 15% для применения
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    hexToRgb(hex) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return { r, g, b };
+    }
+
+    // Формула для расчета разницы цветов (упрощенная версия)
+    calculateColorDifference(rgb1, rgb2) {
+        // Используем формулу расстояния в RGB пространстве
+        const rDiff = Math.abs(rgb1.r - rgb2.r);
+        const gDiff = Math.abs(rgb1.g - rgb2.g);
+        const bDiff = Math.abs(rgb1.b - rgb2.b);
+        
+        // Максимальное расстояние по каждому каналу - 255
+        const maxDiff = Math.sqrt(255*255 + 255*255 + 255*255); // ~441
+        
+        // Текущее расстояние
+        const currentDiff = Math.sqrt(rDiff*rDiff + gDiff*gDiff + bDiff*bDiff);
+        
+        // Процент различия
+        return (currentDiff / maxDiff) * 100;
+    }
+
+    resetCustomColors() {
+        // Сбрасываем к классическим
+        this.customColors = {
+            up: '#FFFFFF',
+            left: '#FFD500',
+            front: '#009B48',
+            right: '#0046AD', 
+            back: '#B71234',
+            down: '#FF5800'
+        };
+        
+        // Обновляем отображение
+        Object.entries(this.customColors).forEach(([face, color]) => {
+            const cell = document.querySelector(`.net-cell[data-face="${face}"]`);
+            if (cell) {
+                cell.style.background = color;
+            }
+        });
+        
+        // Обновляем текущий выбор
+        if (this.selectedFace) {
+            this.setColorToSliders(this.customColors[this.selectedFace]);
+        }
+        
+        // Сохраняем
+        this.saveCustomColors();
+    }
+
+    saveCustomColors() {
+        try {
+            localStorage.setItem('rubiks_cube_custom_colors', JSON.stringify(this.customColors));
+            console.log("Пользовательские цвета сохранены");
+        } catch (e) {
+            console.error("Ошибка сохранения цветов:", e);
+        }
+    }
+
+    loadCustomColors() {
+        try {
+            const saved = localStorage.getItem('rubiks_cube_custom_colors');
+            if (saved) {
+                this.customColors = JSON.parse(saved);
+                
+                // Обновляем отображение
+                Object.entries(this.customColors).forEach(([face, color]) => {
+                    const cell = document.querySelector(`.net-cell[data-face="${face}"]`);
+                    if (cell) {
+                        cell.style.background = color;
+                    }
+                });
+                
+                console.log("Пользовательские цвета загружены");
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки цветов:", e);
+        }
+    }
+
+    showColorsWindow() {
+        document.getElementById('colorsWindow').classList.add('active');
+        document.getElementById('colorsOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Выбираем первую грань по умолчанию
+        this.selectFace('up');
+    }
+
+    hideColorsWindow() {
+        document.getElementById('colorsWindow').classList.remove('active');
+        document.getElementById('colorsOverlay').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
 }
 
 class SpeedSlider {
@@ -711,12 +1030,26 @@ class SpeedSlider {
         let position = (clientX - rect.left) / rect.width;
         position = Math.max(0, Math.min(1, position));
         
-        // Находим ближайший маркер
+        // Увеличиваем зону захвата для каждой точки (вместо 25%)
+        const zoneSize = 0.15; // 15% от длины трека в каждую сторону от точки
+        
+        // Проверяем, попадает ли клик в зону какой-либо точки
+        for (let i = 0; i < this.speeds.length; i++) {
+            const markerPos = i / (this.speeds.length - 1); // 0, 0.33, 0.66, 1
+            const distance = Math.abs(position - markerPos);
+            
+            if (distance <= zoneSize) {
+                this.setSpeed(this.speeds[i]);
+                return;
+            }
+        }
+        
+        // Если клик не попал в зону ни одной точки, устанавливаем ближайшую
         let nearestIndex = 0;
         let minDistance = 1;
         
         this.markers.forEach((marker, index) => {
-            const markerPos = parseFloat(marker.style.left) / 100;
+            const markerPos = index / (this.markers.length - 1); // 0, 0.33, 0.66, 1
             const distance = Math.abs(position - markerPos);
             if (distance < minDistance) {
                 minDistance = distance;
