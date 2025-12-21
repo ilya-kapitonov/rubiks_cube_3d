@@ -29,10 +29,10 @@ body {
 
 /* ЛЕВАЯ ПАНЕЛЬ */
 .left-panel {
-    position: absolute;
+    position: fixed;
     left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 20px; 
+    transform: none;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -41,14 +41,15 @@ body {
 
 /* ПРАВАЯ ПАНЕЛЬ */
 .right-panel {
-    position: absolute;
+    position: fixed;
     right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 20px;
+    transform: none;
     display: flex;
     flex-direction: column;
     gap: 15px;
     z-index: 100;
+    flex-wrap: wrap;
 }
 
 /* Центральная область для кубика и скорости */
@@ -248,12 +249,12 @@ body {
 
 /* Кнопки управления справа */
 .control-btn {
-    padding: 12px 20px;
+    padding: 10px 15px;
     background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -262,7 +263,7 @@ body {
     align-items: center;
     gap: 8px;
     box-shadow: 0 4px 15px rgba(58, 12, 163, 0.4);
-    min-width: 120px;
+    min-width: 100px;
 }
 
 .control-btn:hover {
@@ -843,10 +844,9 @@ body {
     
     .left-panel {
         position: fixed;
+        left: 10px;
         top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        flex-direction: row;
+        flex-direction: column;
         gap: 10px;
         width: auto;
         background: rgba(22, 33, 62, 0.9);
@@ -857,19 +857,18 @@ body {
     
     .right-panel {
         position: fixed;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        top: auto;
+        top: 10px;
+        left: 80px;
+        right: 10px;
+        transform: none;
         flex-direction: row;
-        gap: 10px;
-        width: auto;
+        gap: 8px;
         background: rgba(22, 33, 62, 0.9);
         padding: 10px;
         border-radius: 15px;
         z-index: 1000;
+        justify-content: flex-start;
         flex-wrap: wrap;
-        justify-content: center;
     }
     
     .mode-selector {
@@ -878,7 +877,7 @@ body {
     }
     
     .unity-center {
-        margin-top: 20px;
+        margin-top: 60px;
         gap: 15px;
     }
     
@@ -916,14 +915,20 @@ body {
 }
 
 @media (max-width: 600px) {
+
+    .right-panel {
+        left: 70px;
+        gap: 5px;
+    }
+
     #unity-canvas {
         width: 300px !important;
         height: 300px !important;
     }
     
     .control-btn {
-        min-width: 80px;
-        padding: 8px 12px;
+        min-width: 70px;
+        padding: 8px 10px;
         font-size: 12px;
     }
     

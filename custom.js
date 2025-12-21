@@ -79,6 +79,18 @@ class CustomUI {
                 this.setSpeed(speed);
             });
         });
+        this.updateSpeedDots();
+    }
+
+    updateSpeedDots() {
+        document.querySelectorAll('.speed-dot').forEach(dot => {
+            const speed = parseInt(dot.dataset.speed);
+            if (speed === this.currentSpeed) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
     }
     
     // ===== РЕЖИМЫ (A/P) =====
