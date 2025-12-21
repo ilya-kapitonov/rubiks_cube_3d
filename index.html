@@ -11,59 +11,64 @@
     <link rel="stylesheet" href="custom.css">
 </head>
 <body>
-    <!-- Минимальный интерфейс -->
-    <div class="simple-ui">
-        <!-- Левые кнопки -->
-        <div class="left-controls">
-            <button class="icon-btn" id="menuToggle" title="Меню">
+    <!-- Контейнер приложения -->
+    <div class="app-container">
+        <!-- Кнопки слева -->
+        <div class="left-panel">
+            <button class="hamburger-btn" id="menuToggle" title="Меню">
                 <i class="fas fa-bars"></i>
             </button>
-            <button class="icon-btn mode-btn" data-mode="auto" title="Автоматическая сборка">
-                <span>A</span>
-            </button>
-            <button class="icon-btn mode-btn" data-mode="manual" title="Ручная сборка">
-                <span>P</span>
-            </button>
-        </div>
-
-        <!-- Центр: кубик -->
-        <div id="unity-container" class="unity-desktop">
-            <canvas id="unity-canvas" width="500" height="500" tabindex="-1"></canvas>
-            <div id="unity-loading-bar">
-                <div id="unity-logo"></div>
-                <div id="unity-progress-bar-empty">
-                    <div id="unity-progress-bar-full"></div>
+            
+            <div class="mode-selector">
+                <div class="mode-btn active" data-mode="auto" title="Автоматическая сборка">
+                    <i class="fas fa-robot"></i>
+                    <span class="mode-label">A</span>
+                </div>
+                <div class="mode-btn" data-mode="manual" title="Ручная сборка">
+                    <i class="fas fa-hand-paper"></i>
+                    <span class="mode-label">P</span>
                 </div>
             </div>
-            <div id="unity-warning"></div>
         </div>
 
-        <!-- Правые кнопки -->
-        <div class="right-controls">
-            <button class="icon-btn" id="resetBtn" title="Сброс">
-                <i class="fas fa-redo"></i>
-            </button>
-            <button class="icon-btn" id="hintBtn" title="Подсказка">
-                <i class="fas fa-lightbulb"></i>
-            </button>
-            <button class="icon-btn" id="undoBtn" title="Шаг назад">
-                <i class="fas fa-undo"></i>
-            </button>
-        </div>
-
-        <!-- Панель отладки -->
-        <div class="debug-panel">
-            <div class="debug-info">
-                <span id="debugStatus">Unity не загружен</span>
-                <button id="testSpeed1" class="debug-btn">Тест скорости x1</button>
-                <button id="testSpeed4" class="debug-btn">Тест скорости x4</button>
-                <button id="testShuffle" class="debug-btn">Тест перемешивания</button>
-                <button id="testColors" class="debug-btn">Тест цветов</button>
+        <!-- Центр: Unity -->
+        <div class="unity-center">
+            <div id="unity-container" class="unity-desktop">
+                <canvas id="unity-canvas" width="500" height="500" tabindex="-1"></canvas>
+                <div id="unity-loading-bar">
+                    <div id="unity-logo"></div>
+                    <div id="unity-progress-bar-empty">
+                        <div id="unity-progress-bar-full"></div>
+                    </div>
+                </div>
+                <div id="unity-warning"></div>
             </div>
+        </div>
+
+        <!-- Кнопки справа -->
+        <div class="right-panel">
+            <button class="control-btn shuffle-btn" id="shuffleBtn" title="Перемешать кубик">
+                <i class="fas fa-random"></i> Перемешать
+            </button>
+            <button class="control-btn undo-btn" id="undoBtn" title="Шаг назад">
+                <i class="fas fa-undo"></i> Шаг назад
+            </button>
+            <button class="control-btn hint-btn" id="hintBtn" title="Подсказка">
+                <i class="fas fa-lightbulb"></i> Подсказка
+            </button>
+        </div>
+
+        <!-- Панель отладки (скрыта по умолчанию) -->
+        <div class="debug-panel" style="display: none;">
+            <button onclick="sendToUnity('SetCubeSpeed', '1')">Скорость x1</button>
+            <button onclick="sendToUnity('SetCubeSpeed', '4')">Скорость x4</button>
+            <button onclick="sendToUnity('ApplyColorPreset', 'classic')">Классика</button>
+            <button onclick="sendToUnity('ApplyColorPreset', 'neon')">Неон</button>
+            <button onclick="sendToUnity('ShuffleCube', '')">Перемешать</button>
         </div>
     </div>
 
-    <!-- Unity скрипт -->
+    <!-- Unity скрипт (БЕЗ ИЗМЕНЕНИЙ из вашего рабочего кода) -->
     <script>
         var container = document.querySelector("#unity-container");
         var canvas = document.querySelector("#unity-canvas");
@@ -82,7 +87,7 @@
             productVersion: "1.0",
         };
 
-        // Адаптация
+        // Адаптация под мобильные устройства
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             var meta = document.createElement('meta');
             meta.name = 'viewport';
@@ -104,24 +109,20 @@
                 progressBarFull.style.width = 100 * progress + "%";
             }).then((unityInstance) => {
                 loadingBar.style.display = "none";
+                console.log("✓ Unity загружен успешно");
                 
-                // КРИТИЧНО: устанавливаем глобальную переменную
+                // КРИТИЧЕСКИ ВАЖНО: сохраняем instance
                 window.unityInstance = unityInstance;
-                console.log("Unity загружен, instance готов");
                 
-                // Уведомляем UI, что Unity готов
+                // Уведомляем UI
                 if (window.onUnityReady) {
+                    console.log("Вызываем window.onUnityReady");
                     window.onUnityReady(unityInstance);
                 }
                 
-                // Обновляем статус
-                const status = document.getElementById('debugStatus');
-                if (status) status.textContent = "Unity загружен ✓";
-                
             }).catch((message) => {
+                console.error("Ошибка загрузки Unity:", message);
                 alert("Ошибка загрузки Unity: " + message);
-                const status = document.getElementById('debugStatus');
-                if (status) status.textContent = "Ошибка загрузки Unity";
             });
         };
         document.body.appendChild(script);

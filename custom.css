@@ -10,22 +10,33 @@ body {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #fff;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow-x: hidden;
 }
 
-.simple-ui {
+.app-container {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 30px;
+    align-items: center;
+    min-height: 100vh;
     padding: 20px;
-    position: relative;
+    gap: 40px;
 }
 
-/* Кнопки */
-.icon-btn {
+/* Панели */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Кнопка меню */
+.hamburger-btn {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -39,39 +50,64 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 10px 0;
 }
 
-.icon-btn:hover {
-    transform: scale(1.1);
+.hamburger-btn:hover {
+    transform: rotate(90deg) scale(1.1);
     box-shadow: 0 6px 20px rgba(58, 12, 163, 0.6);
 }
 
-.icon-btn.active {
-    background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
-    box-shadow: 0 0 25px rgba(76, 201, 240, 0.6);
+/* Переключатель режимов */
+.mode-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.icon-btn span {
-    font-weight: bold;
-    font-size: 20px;
-}
-
-/* Группы кнопок */
-.left-controls, .right-controls {
+.mode-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(67, 97, 238, 0.2);
+    border: 2px solid rgba(67, 97, 238, 0.5);
+    color: #4cc9f0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-/* Контейнер Unity */
+.mode-btn.active {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    border-color: #4cc9f0;
+    color: white;
+    box-shadow: 0 0 25px rgba(76, 201, 240, 0.6);
+}
+
+.mode-btn i {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.mode-label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Центр: Unity */
+.unity-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 #unity-container {
-    position: relative;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
 }
 
 #unity-canvas {
@@ -81,90 +117,95 @@ body {
     background: transparent !important;
 }
 
-/* Панель отладки */
-.debug-panel {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    padding: 15px 25px;
-    border-radius: 10px;
-    border: 1px solid #4361ee;
-    z-index: 1000;
-    min-width: 300px;
-}
-
-.debug-info {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-}
-
-#debugStatus {
-    background: rgba(67, 97, 238, 0.2);
-    padding: 8px 15px;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    flex-grow: 1;
-}
-
-.debug-btn {
-    padding: 8px 15px;
-    background: #4cc9f0;
-    border: none;
-    border-radius: 6px;
-    color: #16213e;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 12px;
-}
-
-.debug-btn:hover {
-    background: #3a0ca3;
+/* Кнопки управления справа */
+.control-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(58, 12, 163, 0.4);
+    min-width: 120px;
+}
+
+.control-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(58, 12, 163, 0.6);
+}
+
+.control-btn i {
+    font-size: 22px;
 }
 
 /* Адаптивность */
-@media (max-width: 900px) {
-    .simple-ui {
+@media (max-width: 1100px) {
+    .app-container {
         flex-direction: column;
-        gap: 20px;
+        gap: 30px;
     }
     
-    .left-controls, .right-controls {
+    .left-panel, .right-panel {
         flex-direction: row;
-        gap: 15px;
+        gap: 20px;
     }
     
     #unity-canvas {
         width: 400px !important;
         height: 400px !important;
     }
-    
-    .debug-panel {
-        width: 90%;
-        left: 5%;
-        transform: none;
-    }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
     #unity-canvas {
         width: 300px !important;
         height: 300px !important;
     }
     
-    .icon-btn {
+    .control-btn {
+        min-width: 100px;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .hamburger-btn,
+    .mode-btn {
         width: 50px;
         height: 50px;
         font-size: 20px;
     }
-    
-    .debug-panel {
-        padding: 10px;
-        font-size: 12px;
-    }
+}
+
+/* Панель отладки (для разработки) */
+.debug-panel {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #4cc9f0;
+}
+
+.debug-panel button {
+    margin: 5px;
+    padding: 5px 10px;
+    background: #4cc9f0;
+    border: none;
+    border-radius: 3px;
+    color: #16213e;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.debug-panel button:hover {
+    background: #3a0ca3;
+    color: white;
 }
