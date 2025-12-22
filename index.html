@@ -108,6 +108,15 @@
                     </div>
                 </div>
             </div>
+
+            <div class="menu-section">
+                <h4><i class="fas fa-sliders-h"></i> Настройки</h4>
+                <div class="menu-footer">
+                    <button class="menu-btn" id="customizeColorsBtn">
+                        <i class="fas fa-palette"></i> Настроить цвета
+                    </button>
+                </div>
+            </div>
             
             <div class="menu-section">
                 <h4><i class="fas fa-microchip"></i> Алгоритм сборки</h4>
@@ -116,13 +125,13 @@
                         <div class="algorithm-circle">
                             <i class="fas fa-bolt"></i>
                         </div>
-                        <span>Быстрый (L R L R)</span>
+                        <span>Слой за слоем</span>
                     </div>
                     <div class="algorithm-option" data-algorithm="1">
                         <div class="algorithm-circle">
                             <i class="fas fa-layer-group"></i>
                         </div>
-                        <span>Простой (L L L)</span>
+                        <span>Быстрый</span>
                     </div>
                 </div>
             </div>
@@ -413,6 +422,32 @@
                         <i class="fas fa-undo"></i> Сбросить к классическим
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- Таймер и счетчик ходов -->
+    <div class="game-stats-panel">
+        <!-- Таймер -->
+        <div class="timer-container">
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-controls">
+                <button class="timer-btn" id="timerPauseBtn" title="Пауза">
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button class="timer-btn" id="timerResetBtn" title="Сброс">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Счетчик ходов -->
+        <div class="moves-container">
+            <div class="moves-icon">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="moves-display">
+                <span id="movesCount">0</span>
+                <span class="moves-label">ходов</span>
             </div>
         </div>
     </div>

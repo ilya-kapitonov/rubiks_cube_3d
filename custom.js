@@ -13,6 +13,17 @@ class CustomUI {
         this.isAutoSolving = false;
         this.menuOpen = false;
         
+         // Таймер
+        this.timer = {
+            startTime: 0,
+            elapsedTime: 0,
+            isRunning: false,
+            isPaused: false
+        };
+        
+        this.moveCount = 0;
+        this.isCubeSolved = false;
+
         // Статистика
         this.gameStats = {
             totalSolves: 12,
@@ -77,6 +88,7 @@ class CustomUI {
         this.setupSpeedSlider();
         this.setupCustomColors();
         this.setupWindows();
+        this.initTimer();
         this.updateStatsDisplay();
         
         console.log("UI инициализирован");
@@ -93,6 +105,153 @@ class CustomUI {
             }
         }
     }
+
+    // ===== ТАЙМЕР =====
+    initTimer() {
+        this.timerDisplay = document.getElementById('timerDisplay');
+        this.timerPauseBtn = document.getElementById('timerPauseBtn');
+        this.timerResetBtn = document.getElementById('timerResetBtn');
+        this.movesCountElement = document.getElementById('movesCount');
+        
+        // Обработчики кнопок таймера
+        this.timerPauseBtn?.addEventListener('click', () => {
+            this.toggleTimerPause();
+        });
+        
+        this.timerResetBtn?.addEventListener('click', () => {
+            this.resetTimer();
+        });
+        
+        // Обновляем таймер каждую секунду
+        setInterval(() => this.updateTimer(), 10);
+    }
+
+    toggleTimerPause() {
+        if (!this.timer.isRunning) return;
+        
+        this.timer.isPaused = !this.timer.isPaused;
+        
+        const icon = this.timerPauseBtn.querySelector('i');
+        if (this.timer.isPaused) {
+            icon.className = 'fas fa-play';
+            this.timerPauseBtn.title = 'Продолжить';
+        } else {
+            icon.className = 'fas fa-pause';
+            this.timerPauseBtn.title = 'Пауза';
+        }
+        
+        console.log(`Таймер ${this.timer.isPaused ? 'на паузе' : 'возобновлен'}`);
+    }
+
+    resetTimer() {
+        this.timer = {
+            startTime: Date.now(),
+            elapsedTime: 0,
+            isRunning: false,
+            isPaused: false
+        };
+        
+        this.updateTimerDisplay();
+        this.timerPauseBtn.querySelector('i').className = 'fas fa-pause';
+        this.timerPauseBtn.title = 'Пауза';
+        
+        console.log('Таймер сброшен');
+    }
+
+    startTimer() {
+        if (this.timer.isRunning && !this.timer.isPaused) return;
+        
+        if (!this.timer.isRunning) {
+            this.timer.startTime = Date.now() - this.timer.elapsedTime;
+            this.timer.isRunning = true;
+        }
+        
+        this.timer.isPaused = false;
+        this.timerPauseBtn.querySelector('i').className = 'fas fa-pause';
+        this.timerPauseBtn.title = 'Пауза';
+        
+        console.log('Таймер запущен');
+    }
+
+    stopTimer() {
+        if (!this.timer.isRunning) return;
+        
+        this.timer.isRunning = false;
+        this.timer.isPaused = false;
+        this.updateTimerDisplay();
+        
+        // Если кубик собран - сохраняем результат
+        if (this.isCubeSolved) {
+            this.saveSolveResult();
+        }
+        
+        console.log('Таймер остановлен');
+    }
+
+    updateTimer() {
+        if (!this.timer.isRunning || this.timer.isPaused) return;
+        
+        this.timer.elapsedTime = Date.now() - this.timer.startTime;
+        this.updateTimerDisplay();
+    }
+
+    updateTimerDisplay() {
+        const totalSeconds = Math.floor(this.timer.elapsedTime / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const milliseconds = Math.floor((totalSeconds % 1) * 100); 
+        
+        this.timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+    }
+
+    // ===== СЧЕТЧИК ХОДОВ =====
+    incrementMoveCount() {
+        this.moveCount++;
+        this.movesCountElement.textContent = this.moveCount;
+    }
+
+    resetMoveCount() {
+        this.moveCount = 0;
+        this.movesCountElement.textContent = '0';
+    }
+
+    // ===== СОХРАНЕНИЕ РЕЗУЛЬТАТА СБОРКИ =====
+    saveSolveResult() {
+        const solveTime = Math.floor(this.timer.elapsedTime / 1000);
+        
+        // Обновляем статистику
+        this.gameStats.totalSolves++;
+        this.gameStats.totalMoves += this.moveCount;
+        
+        // Обновляем лучшее время
+        if (this.gameStats.bestTime === 0 || solveTime < this.gameStats.bestTime) {
+            this.gameStats.bestTime = solveTime;
+        }
+        
+        // Добавляем в рекорды
+        const newRecord = {
+            time: solveTime,
+            moves: this.moveCount,
+            date: new Date().toISOString().split('T')[0] // Текущая дата в формате YYYY-MM-DD
+        };
+        
+        // Добавляем и сортируем по времени (лучшие первые)
+        this.gameStats.bestRecords.push(newRecord);
+        this.gameStats.bestRecords.sort((a, b) => a.time - b.time);
+        
+        // Оставляем только 10 лучших результатов
+        if (this.gameStats.bestRecords.length > 10) {
+            this.gameStats.bestRecords = this.gameStats.bestRecords.slice(0, 10);
+        }
+        
+        // Сохраняем статистику
+        this.saveStats();
+        this.updateStatsDisplay();
+        this.updateStatsWindow();
+        
+        console.log(`Сборка завершена! Время: ${this.formatTime(solveTime)}, ходов: ${this.moveCount}`);
+    }
+
      // ===== ПОЛЗУНОК СКОРОСТИ =====
     setupSpeedSlider() {
         this.speedSlider = new SpeedSlider(
@@ -161,9 +320,16 @@ class CustomUI {
         // Если переключаемся из авторежима в ручной - останавливаем автосборку
         if (oldMode === 'auto' && newMode === 'manual') {
             this.stopAutoSolve();
+            // При переключении в ручной режим запускаем таймер
+            if (!this.timer.isRunning) {
+                this.startTimer();
+            }
         }
         // Если переключаемся из ручного в авторежим - запускаем автосборку
         else if (oldMode === 'manual' && newMode === 'auto') {
+            // При начале автосборки сбрасываем таймер
+            this.resetTimer();
+            this.resetMoveCount();
             this.startAutoSolve();
         }
     }
@@ -356,6 +522,10 @@ class CustomUI {
             console.log("Начинаем перемешивание...");
             this.sendToUnity('ShuffleCube');
             this.userInteracted = false;
+
+            this.resetTimer();
+            this.resetMoveCount();
+            this.isCubeSolved = false;
         }
     }
     
@@ -414,10 +584,11 @@ class CustomUI {
     }
     
     formatTime(seconds) {
-        if (seconds === 0) return "0:00";
+        if (seconds === 0) return "00:00:00";
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        const ms = Math.floor((seconds % 1) * 100);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
     }
     
     clearStats() {
@@ -737,23 +908,23 @@ class CustomUI {
             });
     });
     
-    // Быстрые цвета
-    document.querySelectorAll('.quick-color').forEach(colorBtn => {
-        colorBtn.addEventListener('click', (e) => {
-            const color = e.currentTarget.dataset.color;
-            this.setColorFromQuickPick(color);
+        // Быстрые цвета
+        document.querySelectorAll('.quick-color').forEach(colorBtn => {
+            colorBtn.addEventListener('click', (e) => {
+                const color = e.currentTarget.dataset.color;
+                this.setColorFromQuickPick(color);
+            });
         });
-    });
-    
-    // Кнопки
-    document.getElementById('applyColorBtn')?.addEventListener('click', () => {
-        this.applyColorToFace();
-    });
-    
-    document.getElementById('resetColorsBtn')?.addEventListener('click', () => {
-        this.resetCustomColors();
-    });
-}
+        
+        // Кнопки
+        document.getElementById('applyColorBtn')?.addEventListener('click', () => {
+            this.applyColorToFace();
+        });
+        
+        document.getElementById('resetColorsBtn')?.addEventListener('click', () => {
+            this.resetCustomColors();
+        });
+    }
 
     saveCustomScheme() {
         // Активируем опцию "Своя схема" в меню
@@ -1032,6 +1203,23 @@ class CustomUI {
         this.sendToUnity('ApplyCustomColors', JSON.stringify(this.customColors));
         console.log("Пользовательские цвета отправлены в Unity:", this.customColors);
     }
+
+    onCubeMove(moveData) {
+        // Инкрементируем счетчик ходов
+        this.incrementMoveCount();
+        
+        // Если таймер на паузе и кубик еще не собран - возобновляем
+        if (this.timer.isPaused && !this.isCubeSolved) {
+            this.timer.isPaused = false;
+            this.timerPauseBtn.querySelector('i').className = 'fas fa-pause';
+            this.timerPauseBtn.title = 'Пауза';
+        }
+        
+        // Если таймер не запущен - запускаем
+        if (!this.timer.isRunning) {
+            this.startTimer();
+        }
+    }
 }
 
 class SpeedSlider {
@@ -1217,6 +1405,22 @@ window.onUserInteraction = function() {
         window.customUI.switchToManualMode();
     }
 }
+
+window.onCubeSolved = function() {
+    if (window.customUI) {
+        window.customUI.isCubeSolved = true;
+        window.customUI.stopTimer();
+        console.log("Кубик собран!");
+        alert("🎉 Поздравляем! Кубик собран!");
+    }
+};
+
+// Для отслеживания ходов
+window.onCubeMove = function() {
+    if (window.customUI) {
+        window.customUI.onCubeMove();
+    }
+};
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
