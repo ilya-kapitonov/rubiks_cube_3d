@@ -1125,7 +1125,6 @@ body {
     justify-content: center;
     color: white;
     font-size: 18px;
-    animation: rotate 4s linear infinite;
 }
 
 @keyframes rotate {

@@ -201,7 +201,8 @@ class CustomUI {
         const seconds = totalSeconds % 60;
         const milliseconds = Math.floor((totalSeconds % 1) * 100); 
         
-        this.timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+        this.timerDisplay.textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
     }
 
     // ===== СЧЕТЧИК ХОДОВ =====
