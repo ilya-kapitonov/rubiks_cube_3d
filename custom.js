@@ -26,16 +26,10 @@ class CustomUI {
 
         // Статистика
         this.gameStats = {
-            totalSolves: 12,
-            bestTime: 145, // 2:25 в секундах
-            totalPlayTime: 1850,
-            bestRecords: [
-                { time: 145, moves: 42, date: '2024-01-15' },
-                { time: 162, moves: 45, date: '2024-01-14' },
-                { time: 178, moves: 48, date: '2024-01-13' },
-                { time: 195, moves: 52, date: '2024-01-12' },
-                { time: 210, moves: 55, date: '2024-01-11' }
-            ]
+            totalSolves: 0,
+            bestTime: 0, // 2:25 в секундах
+            totalPlayTime: 0,
+            bestRecords: []
         };
 
         this.selectedFace = 'up';
