@@ -62,12 +62,19 @@ body {
     gap: 20px;
     position: relative;
     width: 100%;
-    margin-top: 50px;
+    margin-top: 0px;
+    padding-top: 100px;
 }
 
 #unity-container {
     background: transparent;
     border-radius: 15px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
 }
 
 #unity-canvas {
@@ -75,6 +82,7 @@ body {
     height: 600px !important;
     display: block;
     background: transparent !important;
+    margin: 0 auto; 
 }
 
 /* ===== ПАНЕЛЬ СКОРОСТИ ===== */
