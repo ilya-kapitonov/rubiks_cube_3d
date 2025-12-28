@@ -221,10 +221,9 @@ class CustomUI {
     saveSolveResult() {
         const solveTime = Math.floor(this.timer.elapsedTime / 1000);
         
-        // Обновляем статистику
+        // Обновляем статистику - УБИРАЕМ totalMoves
         this.gameStats.totalSolves++;
-        this.gameStats.totalPlayTime = (this.gameStats.totalPlayTime || 0) + solveTime; // Добавляем
-        this.gameStats.totalMoves += this.moveCount;
+        this.gameStats.totalPlayTime = (this.gameStats.totalPlayTime || 0) + solveTime;
         
         // Обновляем лучшее время
         if (this.gameStats.bestTime === 0 || solveTime < this.gameStats.bestTime) {
@@ -235,7 +234,7 @@ class CustomUI {
         const newRecord = {
             time: solveTime,
             moves: this.moveCount,
-            date: new Date().toISOString().split('T')[0] // Текущая дата в формате YYYY-MM-DD
+            date: new Date().toISOString().split('T')[0]
         };
         
         // Добавляем и сортируем по времени (лучшие первые)
@@ -583,31 +582,41 @@ class CustomUI {
     updateStatsDisplay() {
         document.getElementById('totalSolves').textContent = this.gameStats.totalSolves;
         document.getElementById('bestTime').textContent = this.formatTime(this.gameStats.bestTime);
-        document.getElementById('totalMoves').textContent = this.gameStats.totalMoves;
+        
+        // Если элемент называется totalPlayTime
+        const totalPlayTimeElement = document.getElementById('totalPlayTime');
+        if (totalPlayTimeElement) {
+            totalPlayTimeElement.textContent = this.formatTime(this.gameStats.totalPlayTime || 0);
+        }
     }
-    
+
     formatTime(seconds) {
-        if (seconds === 0) return "00:00:00";
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        const ms = Math.floor((seconds % 1) * 100);
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
+        if (seconds === 0 || !seconds) return "00:00:00";
+        
+        // seconds - это целое число секунд (например 145)
+        const totalSeconds = Math.floor(seconds);
+        const minutes = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        
+        // Возвращаем формат ММ:СС:сс (где сс - сотые секунды, но у нас их нет)
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:00`;
     }
-    
+
     clearStats() {
         if (confirm("Очистить всю статистику и рекорды?")) {
             this.gameStats = {
                 totalSolves: 0,
                 bestTime: 0,
-                totalMoves: 0,
+                totalPlayTime: 0, // Исправляем здесь
                 bestRecords: [] // Очищаем рекорды тоже
             };
             this.updateStatsDisplay();
-            this.updateStatsWindow(); // Обновляем окно статистики
+            this.updateStatsWindow();
             this.saveStats();
             console.log("Статистика и рекорды очищены");
         }
     }
+
     
     showHelp() {
         this.showHelpWindow();
@@ -660,8 +669,15 @@ class CustomUI {
         try {
             const stats = localStorage.getItem('rubiks_cube_stats');
             if (stats) {
-                this.gameStats = JSON.parse(stats);
-                console.log("Статистика загружена");
+                const loadedStats = JSON.parse(stats);
+                // Сохраняем тестовые данные, если нет сохраненных
+                this.gameStats = {
+                    totalSolves: loadedStats.totalSolves || this.gameStats.totalSolves,
+                    bestTime: loadedStats.bestTime || this.gameStats.bestTime,
+                    totalPlayTime: loadedStats.totalPlayTime || this.gameStats.totalPlayTime,
+                    bestRecords: loadedStats.bestRecords || this.gameStats.bestRecords
+                };
+                console.log("Статистика загружена:", this.gameStats);
             }
         } catch (e) {
             console.error("Ошибка загрузки статистики:", e);
@@ -807,7 +823,7 @@ class CustomUI {
         document.getElementById('statsBestTime').textContent = this.formatTime(this.gameStats.bestTime);
         document.getElementById('statsAvgTime').textContent = this.calculateAverageTime();
         
-        // Добавляем общее время
+        // Общее время - исправляем форматирование
         const totalPlayTime = this.gameStats.totalPlayTime || 0;
         document.getElementById('statsTotalPlayTime').textContent = this.formatTime(totalPlayTime);
         
@@ -817,15 +833,17 @@ class CustomUI {
         
     calculateAverageTime() {
         if (this.gameStats.totalSolves === 0 || this.gameStats.bestRecords.length === 0) {
-            return "0:00";
+            return "00:00:00";
         }
         
         let totalTime = 0;
+        let count = 0;
         this.gameStats.bestRecords.forEach(record => {
             totalTime += record.time;
+            count++;
         });
         
-        const avgTime = totalTime / Math.min(this.gameStats.bestRecords.length, 10);
+        const avgTime = totalTime / Math.min(count, this.gameStats.bestRecords.length);
         return this.formatTime(avgTime);
     }
 
@@ -835,12 +853,15 @@ class CustomUI {
         
         tableBody.innerHTML = '';
         
-        if (this.gameStats.bestRecords.length === 0) {
+        // Используем тестовые данные из конструктора
+        const records = this.gameStats.bestRecords || [];
+        
+        if (records.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #4cc9f0;">Нет рекордов</td></tr>';
             return;
         }
         
-        this.gameStats.bestRecords.forEach((record, index) => {
+        records.forEach((record, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${index + 1}</td>
