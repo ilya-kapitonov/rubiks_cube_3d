@@ -637,36 +637,40 @@ body {
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
 .stat-card {
     background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    padding: 15px;
+    border-radius: 8px;
+    padding: 10px;
     text-align: center;
     transition: transform 0.3s ease;
+    min-height: 60px; /* фиксированная высота */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     background: rgba(0, 0, 0, 0.3);
 }
 
 .stat-value {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: bold;
     color: #4cc9f0;
-    margin: 10px 0 5px;
+    margin: 5px 0 3px;
     text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
 }
 
 .stat-label {
-    font-size: 14px;
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .records-table {

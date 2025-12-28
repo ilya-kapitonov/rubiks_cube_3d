@@ -222,6 +222,7 @@ class CustomUI {
         
         // Обновляем статистику
         this.gameStats.totalSolves++;
+        this.gameStats.totalPlayTime = (this.gameStats.totalPlayTime || 0) + solveTime; // Добавляем
         this.gameStats.totalMoves += this.moveCount;
         
         // Обновляем лучшее время
@@ -804,12 +805,15 @@ class CustomUI {
         document.getElementById('statsTotalSolves').textContent = this.gameStats.totalSolves;
         document.getElementById('statsBestTime').textContent = this.formatTime(this.gameStats.bestTime);
         document.getElementById('statsAvgTime').textContent = this.calculateAverageTime();
-        document.getElementById('statsTotalMoves').textContent = this.gameStats.totalMoves;
+        
+        // Добавляем общее время
+        const totalPlayTime = this.gameStats.totalPlayTime || 0;
+        document.getElementById('statsTotalPlayTime').textContent = this.formatTime(totalPlayTime);
         
         // Заполняем таблицу рекордов
         this.fillRecordsTable();
     }
-    
+        
     calculateAverageTime() {
         if (this.gameStats.totalSolves === 0 || this.gameStats.bestRecords.length === 0) {
             return "0:00";
