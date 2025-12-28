@@ -1204,6 +1204,7 @@ class CustomUI {
                 console.log("Автоматически переключено в ручной режим");
             }
         }
+        this.startTimer()
     }
     saveCustomColors() {
         try {
@@ -1226,19 +1227,25 @@ class CustomUI {
     }
 
     onCubeMove(moveData) {
+        console.log("Ход выполнен, данные:", moveData);
+        
         // Инкрементируем счетчик ходов
         this.incrementMoveCount();
+        this.saveTimerState(); // Сохраняем состояние
         
-        // Если таймер на паузе и кубик еще не собран - возобновляем
-        if (this.timer.isPaused && !this.isCubeSolved) {
-            this.timer.isPaused = false;
-            this.timerPauseBtn.querySelector('i').className = 'fas fa-pause';
-            this.timerPauseBtn.title = 'Пауза';
+        // Автоматически запускаем таймер при первом ходе в ручном режиме
+        if (!this.timer.isRunning && !this.isAutoSolving) {
+            console.log("Автоматический запуск таймера при первом ходе");
+            this.startTimer();
         }
         
-        // Если таймер не запущен - запускаем
-        if (!this.timer.isRunning) {
-            this.startTimer();
+        // Если таймер на паузе - возобновляем
+        if (this.timer.isPaused) {
+            this.timer.isPaused = false;
+            if (this.timerPauseBtn) {
+                this.timerPauseBtn.querySelector('i').className = 'fas fa-pause';
+                this.timerPauseBtn.title = 'Пауза';
+            }
         }
     }
     saveTimerState() {
@@ -1412,7 +1419,6 @@ class SpeedSlider {
     }
     
     onSpeedChange(speed) {
-        // Будет переопределен в CustomUI
     }
 }
 
@@ -1490,9 +1496,10 @@ window.onCubeSolved = function() {
 };
 
 // Для отслеживания ходов
-window.onCubeMove = function() {
+window.onCubeMove = function(moveData) {
+    console.log("Получен ход из Unity:", moveData);
     if (window.customUI) {
-        window.customUI.onCubeMove();
+        window.customUI.onCubeMove(moveData);
     }
 };
 
