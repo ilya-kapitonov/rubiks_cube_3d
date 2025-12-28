@@ -62,8 +62,8 @@ body {
     gap: 20px;
     position: relative;
     width: 100%;
-    margin-top: 40px;
-    padding-top: 100px;
+    flex: 1;
+    height: 100%;
 }
 
 #unity-container {
@@ -74,15 +74,26 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: auto;
+    height: 100%;
+    max-width: 800px;
+    max-height: 600px;
+    margin: 0 auto;
 }
-
+/* 
 #unity-canvas {
     width: 800px !important;
     height: 600px !important;
     display: block;
     background: transparent !important;
     margin: 0 auto; 
+} */
+
+#unity-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    background: transparent !important;
+    object-fit: contain;
 }
 
 /* ПАНЕЛЬ СКОРОСТИ */

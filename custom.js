@@ -8,8 +8,8 @@ class CustomUI {
         console.log("CustomUI создан");
         
         // Настройки по умолчанию
-        this.currentAlgorithm = 0; // 0 = Быстрый, 1 = Простой
-        this.currentSpeed = 1; // x1 по умолчанию
+        this.currentAlgorithm = 0;
+        this.currentSpeed = 1;
         this.currentColorScheme = 'classic';
         this.isAutoSolving = false;
         this.menuOpen = false;
@@ -27,7 +27,7 @@ class CustomUI {
         // Статистика
         this.gameStats = {
             totalSolves: 0,
-            bestTime: 0, // 2:25 в секундах
+            bestTime: 0,
             totalPlayTime: 0,
             bestRecords: []
         };
@@ -56,13 +56,10 @@ class CustomUI {
                 this.isReady = true;
                 console.log("=== СИСТЕМА ГОТОВА ===");
                 
-                // Применяем сохраненные настройки
                 this.applySavedSettings();
                 
-                // Устанавливаем начальную скорость
                 this.sendToUnity('SetCubeSpeed', this.currentSpeed);
                 
-                // Если в авторежиме - запускаем автосборку
                 if (this.getCurrentMode() === 'auto') {
                     this.startAutoSolve();
                 }
@@ -75,8 +72,6 @@ class CustomUI {
     
     init() {
         console.log("Инициализация UI...");
-        
-        // Инициализация всех компонентов
         this.setupModeSelector();
         this.setupControlButtons();
         this.setupMenu();
@@ -102,7 +97,7 @@ class CustomUI {
         }
     }
 
-    // ===== ТАЙМЕР =====
+    // ТАЙМЕР 
     initTimer() {
         this.timerDisplay = document.getElementById('timerDisplay');
         this.timerPauseBtn = document.getElementById('timerPauseBtn');
@@ -117,8 +112,6 @@ class CustomUI {
         this.timerResetBtn?.addEventListener('click', () => {
             this.resetTimer();
         });
-        
-        // Обновляем таймер каждую секунду
         setInterval(() => this.updateTimer(), 10);
     }
 
@@ -163,7 +156,7 @@ class CustomUI {
         }
         
         this.timer.isPaused = false;
-        this.saveTimerState(); // <-- Сохраняем
+        this.saveTimerState();
     }
 
     stopTimer() {
@@ -173,7 +166,6 @@ class CustomUI {
         this.timer.isPaused = false;
         this.updateTimerDisplay();
         
-        // Если кубик собран - сохраняем результат
         if (this.isCubeSolved) {
             this.saveSolveResult();
         }
@@ -189,16 +181,16 @@ class CustomUI {
     }
 
     updateTimerDisplay() {
-        const totalMs = this.timer.elapsedTime; // Уже в миллисекундах
+        const totalMs = this.timer.elapsedTime; 
         const minutes = Math.floor(totalMs / 60000);
         const seconds = Math.floor((totalMs % 60000) / 1000);
-        const milliseconds = Math.floor((totalMs % 1000) / 10); // Две цифры
+        const milliseconds = Math.floor((totalMs % 1000) / 10); 
         
         this.timerDisplay.textContent = 
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
     }
 
-    // ===== СЧЕТЧИК ХОДОВ =====
+    // СЧЕТЧИК ХОДОВ 
     incrementMoveCount() {
         this.moveCount++;
         console.log("Счетчик ходов увеличен:", this.moveCount);
@@ -206,11 +198,9 @@ class CustomUI {
         // Сохраняем в localStorage
         this.saveTimerState();
         
-        // Обновляем отображение, если элемент существует
         if (this.movesCountElement) {
             this.movesCountElement.textContent = this.moveCount;
         } else {
-            // Пытаемся найти элемент
             this.movesCountElement = document.getElementById('movesCount');
             if (this.movesCountElement) {
                 this.movesCountElement.textContent = this.moveCount;
@@ -223,36 +213,30 @@ class CustomUI {
         this.movesCountElement.textContent = '0';
     }
 
-    // ===== СОХРАНЕНИЕ РЕЗУЛЬТАТА СБОРКИ =====
+    // СОХРАНЕНИЕ РЕЗУЛЬТАТА СБОРКИ 
     saveSolveResult() {
         const solveTime = Math.floor(this.timer.elapsedTime / 1000);
         
-        // Обновляем статистику - УБИРАЕМ totalMoves
         this.gameStats.totalSolves++;
         this.gameStats.totalPlayTime = (this.gameStats.totalPlayTime || 0) + solveTime;
         
-        // Обновляем лучшее время
         if (this.gameStats.bestTime === 0 || solveTime < this.gameStats.bestTime) {
             this.gameStats.bestTime = solveTime;
         }
         
-        // Добавляем в рекорды
         const newRecord = {
             time: solveTime,
             moves: this.moveCount,
             date: new Date().toISOString().split('T')[0]
         };
         
-        // Добавляем и сортируем по времени (лучшие первые)
         this.gameStats.bestRecords.push(newRecord);
         this.gameStats.bestRecords.sort((a, b) => a.time - b.time);
         
-        // Оставляем только 10 лучших результатов
         if (this.gameStats.bestRecords.length > 10) {
             this.gameStats.bestRecords = this.gameStats.bestRecords.slice(0, 10);
         }
         
-        // Сохраняем статистику
         this.saveStats();
         this.updateStatsDisplay();
         this.updateStatsWindow();
@@ -262,7 +246,7 @@ class CustomUI {
         this.resetMoveCount();
     }
 
-     // ===== ПОЛЗУНОК СКОРОСТИ =====
+     //  ПОЛЗУНОК СКОРОСТИ 
     setupSpeedSlider() {
         this.speedSlider = new SpeedSlider(
             'speedSlider', 
@@ -299,7 +283,7 @@ class CustomUI {
         }
     }
 
-    // ===== РЕЖИМЫ (A/P) =====
+    //РЕЖИМЫ (A/P)
     setupModeSelector() {
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -310,12 +294,10 @@ class CustomUI {
                 document.querySelectorAll('.mode-btn').forEach(b => {
                     b.classList.remove('active');
                 });
-                // Добавляем активный класс выбранному
                 e.currentTarget.classList.add('active');
                 
                 console.log(`Режим изменен: ${oldMode} → ${newMode}`);
                 
-                // Обработка смены режима
                 this.handleModeChange(oldMode, newMode);
             });
         });
@@ -327,7 +309,6 @@ class CustomUI {
     }
     
     handleModeChange(oldMode, newMode) {
-        // Сохраняем режим
         this.savedMode = newMode;
         this.saveSettings();
         
@@ -347,14 +328,13 @@ class CustomUI {
             this.resetTimer();
             this.resetMoveCount();
             
-            // ЗАПУСКАЕМ АВТОСБОРКУ
             this.startAutoSolve();
             
             console.log("Автосборка запущена");
         }
     }
     
-    // ===== КНОПКИ УПРАВЛЕНИЯ =====
+    // КНОПКИ УПРАВЛЕНИЯ 
     setupControlButtons() {
         // Кнопка перемешивания
         document.getElementById('shuffleBtn')?.addEventListener('click', () => {
@@ -372,7 +352,7 @@ class CustomUI {
         });
     }
     
-    // ===== МЕНЮ =====
+    // МЕНЮ 
      setupMenu() {
         const menuToggle = document.getElementById('menuToggle');
         const menuCloseBtn = document.getElementById('menuCloseBtn');
@@ -455,7 +435,7 @@ class CustomUI {
         document.body.style.overflow = 'auto';
     }
     
-    // ===== НАСТРОЙКИ =====
+    // НАСТРОЙКИ 
     setColorScheme(scheme) {
         this.currentColorScheme = scheme;
         
@@ -476,7 +456,6 @@ class CustomUI {
             }
         }
         
-        // Сохраняем настройки
         this.saveSettings();
         
         console.log(`Установлена цветовая схема: ${scheme}`);
@@ -485,7 +464,6 @@ class CustomUI {
     setAlgorithm(algorithm) {
         this.currentAlgorithm = algorithm;
         
-        // Обновляем UI
         document.querySelectorAll('.algorithm-option').forEach(option => {
             option.classList.remove('active');
         });
@@ -497,7 +475,6 @@ class CustomUI {
             setTimeout(() => this.startAutoSolve(), 500);
         }
         
-        // Сохраняем настройки
         this.saveSettings();
         
         console.log(`Установлен алгоритм: ${algorithm === 0 ? 'Быстрый' : 'Простой'}`);
@@ -509,7 +486,7 @@ class CustomUI {
         }
     }
     
-    // ===== АВТОСБОРКА =====
+    // АВТОСБОРКА 
     startAutoSolve() {
         if (!this.isReady) {
             console.warn("Система не готова");
@@ -531,7 +508,7 @@ class CustomUI {
         this.isAutoSolving = false;
     }
     
-    // ===== ОСНОВНЫЕ МЕТОДЫ =====
+    // ОСНОВНЫЕ МЕТОДЫ 
 shuffleCube() {
     if (!this.isReady) {
         console.warn("Система ещё не готова");
@@ -546,15 +523,12 @@ shuffleCube() {
             this.stopTimer();
         }
         
-        // Сбрасываем счётчики
         this.resetTimer();
         this.resetMoveCount();
         this.isCubeSolved = false;
         
-        // Флаг, что идет перемешивание
         this.isShuffling = true;
         
-        // Отправляем команду в Unity
         this.sendToUnity('ShuffleCube');
         this.userInteracted = false;
         
@@ -609,7 +583,7 @@ shuffleCube() {
         }
     }
     
-    // ===== СТАТИСТИКА =====
+    // СТАТИСТИКА 
     updateStatsDisplay() {
         // Проверяем существование элементов
         const totalSolvesElement = document.getElementById('totalSolves');
@@ -637,7 +611,6 @@ shuffleCube() {
         const minutes = Math.floor(totalSeconds / 60);
         const secs = totalSeconds % 60;
         
-        // Возвращаем формат ММ:СС:сс (где сс - сотые секунды, но у нас их нет)
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:00`;
     }
 
@@ -646,8 +619,8 @@ shuffleCube() {
             this.gameStats = {
                 totalSolves: 0,
                 bestTime: 0,
-                totalPlayTime: 0, // Исправляем здесь
-                bestRecords: [] // Очищаем рекорды тоже
+                totalPlayTime: 0,
+                bestRecords: [] 
             };
             this.updateStatsDisplay();
             this.updateStatsWindow();
@@ -659,16 +632,16 @@ shuffleCube() {
     
     showHelp() {
         this.showHelpWindow();
-        this.closeMenu(); // Закрываем меню при открытии справки
+        this.closeMenu(); 
     }
     
-    // ===== СОХРАНЕНИЕ/ЗАГРУЗКА ДАННЫХ =====
+    //  СОХРАНЕНИЕ/ЗАГРУЗКА ДАННЫХ 
     saveSettings() {
         const settings = {
             algorithm: this.currentAlgorithm,
             speed: this.currentSpeed,
             colorScheme: this.currentColorScheme,
-            customColors: this.customColors // Сохраняем пользовательские цвета
+            customColors: this.customColors 
         };
         
         try {
