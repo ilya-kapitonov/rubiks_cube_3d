@@ -24,7 +24,8 @@ body {
     width: 100%;
     min-height: 100vh;
     position: relative;
-    padding-bottom: 100;
+    padding-top: 80px;
+    padding-bottom: 80px;
 }
 
 /* ЛЕВАЯ ПАНЕЛЬ */
