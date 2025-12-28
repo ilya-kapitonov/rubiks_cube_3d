@@ -28,7 +28,7 @@ class CustomUI {
         this.gameStats = {
             totalSolves: 12,
             bestTime: 145, // 2:25 в секундах
-            totalMoves: 1850,
+            totalPlayTime: 1850,
             bestRecords: [
                 { time: 145, moves: 42, date: '2024-01-15' },
                 { time: 162, moves: 45, date: '2024-01-14' },
