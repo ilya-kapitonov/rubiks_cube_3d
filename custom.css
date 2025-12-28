@@ -66,6 +66,17 @@ body {
     padding-top: 100px;
 }
 
+.unity-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    z-index: 1;
+}
+
 #unity-container {
     background: transparent;
     border-radius: 15px;
