@@ -63,6 +63,7 @@ body {
     gap: 20px;
     position: relative;
     width: 100%;
+    margin-top: 80px;
 }
 
 #unity-container {
@@ -884,7 +885,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-.net-row:last-child {
+.net-row:last-child, .net-row:first-child {
     margin-left: 95px; 
 }
 

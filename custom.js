@@ -28,7 +28,7 @@ class CustomUI {
         this.gameStats = {
             totalSolves: 12,
             bestTime: 145, // 2:25 в секундах
-            totalMoves: 583,
+            totalMoves: 1850,
             bestRecords: [
                 { time: 145, moves: 42, date: '2024-01-15' },
                 { time: 162, moves: 45, date: '2024-01-14' },
@@ -90,7 +90,8 @@ class CustomUI {
         this.setupWindows();
         this.initTimer();
         this.updateStatsDisplay();
-        
+        window.addEventListener('resize', () => this.resizeCanvas());
+        setTimeout(() => this.resizeCanvas(), 1000);
         console.log("UI инициализирован");
     }
     initCustomColors() {
@@ -1278,7 +1279,25 @@ class SpeedSlider {
             });
         });
     }
-    
+    resizeCanvas() {
+        const canvas = document.getElementById('unity-canvas');
+        const container = document.getElementById('unity-container');
+        
+        // Рассчитать размер на основе экрана
+        const maxWidth = Math.min(window.innerWidth * 0.6, 600);
+        const maxHeight = Math.min(window.innerHeight * 0.6, 600);
+        const size = Math.min(maxWidth, maxHeight);
+        
+        canvas.style.width = size + 'px';
+        canvas.style.height = size + 'px';
+        
+        // Добавить отступ сверху для таймера
+        const statsPanel = document.querySelector('.game-stats-panel');
+        if (statsPanel) {
+            const statsHeight = statsPanel.offsetHeight;
+            container.style.marginTop = (statsHeight + 20) + 'px';
+        }
+    }
     setSpeedFromPosition(clientX) {
         const rect = this.slider.getBoundingClientRect();
         let position = (clientX - rect.left) / rect.width;
