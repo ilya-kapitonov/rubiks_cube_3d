@@ -1367,7 +1367,7 @@ class SpeedSlider {
         let minDistance = 1;
         
         this.markers.forEach((marker, index) => {
-            const markerPos = index / (this.markers.length - 1); // 0, 0.33, 0.66, 1
+            const markerPos = index / (this.markers.length - 1); 
             const distance = Math.abs(position - markerPos);
             if (distance < minDistance) {
                 minDistance = distance;
@@ -1383,7 +1383,6 @@ class SpeedSlider {
         this.updateSliderPosition(speed);
         this.updateValueDisplay();
         
-        // Вызываем callback, если он установлен
         if (this.onSpeedChange) {
             this.onSpeedChange(speed);
         }
@@ -1410,7 +1409,7 @@ class SpeedSlider {
     }
 }
 
-// ===== ГЛОБАЛЬНЫЕ ФУНКЦИИ =====
+//  ГЛОБАЛЬНЫЕ ФУНКЦИИ
 
 // Для сохранения состояния из Unity
 window.saveCubeState = function(json) {
@@ -1423,28 +1422,6 @@ window.saveCubeState = function(json) {
 window.showHint = function(hintText) {
     console.log(`Подсказка от Unity: ${hintText}`);
     alert(`Следующий ход: ${hintText}`);
-};
-
-// Тестовые функции для консоли
-window.testUnity = function() {
-    console.log("=== ТЕСТ ПОДКЛЮЧЕНИЯ ===");
-    
-    if (!window.customUI) {
-        console.error("CustomUI не создан!");
-        return;
-    }
-    
-    if (!window.customUI.unityInstance) {
-        console.error("Unity instance не найден!");
-        return;
-    }
-    
-    if (!window.customUI.isReady) {
-        console.warn("Система ещё не готова, ждём...");
-        return;
-    }
-    
-    console.log("✓ Система готова к работе");
 };
 
 window.testSpeed = function(speed) {
@@ -1490,23 +1467,6 @@ window.onCubeMove = function(moveData) {
         window.customUI.onCubeMove(moveData);
     }
 };
-
-// Функция для тестирования из консоли
-window.debugTimer = function() {
-    if (window.customUI) {
-        console.log("=== ДЕБАГ ТАЙМЕРА ===");
-        console.log("Режим:", window.customUI.getCurrentMode());
-        console.log("Таймер работает:", window.customUI.timer.isRunning);
-        console.log("Таймер на паузе:", window.customUI.timer.isPaused);
-        console.log("Прошедшее время:", window.customUI.timer.elapsedTime);
-        console.log("Счетчик ходов:", window.customUI.moveCount);
-        console.log("Элемент таймера:", window.customUI.timerDisplay);
-        console.log("Элемент счетчика:", window.customUI.movesCountElement);
-        
-        // Принудительно обновляем отображение
-        window.customUI.updateTimerDisplay();
-    }
-}
 
 window.testMove = function() {
     if (window.customUI) {
