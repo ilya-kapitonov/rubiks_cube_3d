@@ -68,12 +68,11 @@ body {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
 }
 
 #unity-canvas {
-    width: 400px !important;
-    height: 400px !important;
+    width: 800px !important;
+    height: 600px !important;
     display: block;
     background: transparent !important;
 }
