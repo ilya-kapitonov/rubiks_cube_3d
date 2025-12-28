@@ -20,7 +20,6 @@ class CustomUI {
             isRunning: false,
             isPaused: false
         };
-        
         this.moveCount = 0;
         this.isCubeSolved = false;
 
@@ -344,16 +343,13 @@ class CustomUI {
         }
         // Если переключаемся из ручного в авторежим - запускаем автосборку
         else if (oldMode === 'manual' && newMode === 'auto') {
-            // При начале автосборки сбрасываем таймер
             this.resetTimer();
             this.resetMoveCount();
             
-            // ЗАКОММЕНТИРУЙТЕ на время тестирования
-            // this.startAutoSolve();
+            // ЗАПУСКАЕМ АВТОСБОРКУ
+            this.startAutoSolve();
             
-            // Вместо этого показываем сообщение
-            alert("Автосборка временно отключена из-за ошибок в Unity");
-            console.log("Автосборка пропущена (временно отключена)");
+            console.log("Автосборка запущена");
         }
     }
     
@@ -1329,6 +1325,25 @@ class CustomUI {
             console.error("Ошибка загрузки таймера:", e);
         }
     }
+    resizeCanvas() {
+        const canvas = document.getElementById('unity-canvas');
+        const container = document.getElementById('unity-container');
+        
+        // Рассчитать размер на основе экрана
+        const maxWidth = Math.min(window.innerWidth * 0.6, 600);
+        const maxHeight = Math.min(window.innerHeight * 0.6, 600);
+        const size = Math.min(maxWidth, maxHeight);
+        
+        canvas.style.width = size + 'px';
+        canvas.style.height = size + 'px';
+        
+        // Добавить отступ сверху для таймера
+        const statsPanel = document.querySelector('.game-stats-panel');
+        if (statsPanel) {
+            const statsHeight = statsPanel.offsetHeight;
+            container.style.marginTop = (statsHeight + 20) + 'px';
+        }
+    }
 }
 
 class SpeedSlider {
@@ -1382,25 +1397,7 @@ class SpeedSlider {
             });
         });
     }
-    resizeCanvas() {
-        const canvas = document.getElementById('unity-canvas');
-        const container = document.getElementById('unity-container');
-        
-        // Рассчитать размер на основе экрана
-        const maxWidth = Math.min(window.innerWidth * 0.6, 600);
-        const maxHeight = Math.min(window.innerHeight * 0.6, 600);
-        const size = Math.min(maxWidth, maxHeight);
-        
-        canvas.style.width = size + 'px';
-        canvas.style.height = size + 'px';
-        
-        // Добавить отступ сверху для таймера
-        const statsPanel = document.querySelector('.game-stats-panel');
-        if (statsPanel) {
-            const statsHeight = statsPanel.offsetHeight;
-            container.style.marginTop = (statsHeight + 20) + 'px';
-        }
-    }
+    
     setSpeedFromPosition(clientX) {
         const rect = this.slider.getBoundingClientRect();
         let position = (clientX - rect.left) / rect.width;
