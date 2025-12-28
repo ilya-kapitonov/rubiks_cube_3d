@@ -58,12 +58,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 auto;
     flex-direction: column;
     gap: 20px;
     position: relative;
     width: 100%;
-    margin-top: 80px;
+    margin-top: 50px;
 }
 
 #unity-container {
