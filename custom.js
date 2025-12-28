@@ -45,6 +45,7 @@ class CustomUI {
         // Загрузка сохраненных данных
         this.loadSettings();
         this.loadStats();
+        this.loadTimerState();
         
         // Ждем Unity
         window.onUnityReady = (instance) => {
@@ -162,10 +163,7 @@ class CustomUI {
         }
         
         this.timer.isPaused = false;
-        this.timerPauseBtn.querySelector('i').className = 'fas fa-pause';
-        this.timerPauseBtn.title = 'Пауза';
-        
-        console.log('Таймер запущен');
+        this.saveTimerState(); // <-- Сохраняем
     }
 
     stopTimer() {
@@ -191,13 +189,13 @@ class CustomUI {
     }
 
     updateTimerDisplay() {
-        const totalSeconds = Math.floor(this.timer.elapsedTime / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        const milliseconds = Math.floor((totalSeconds % 1) * 100); 
+        const totalMs = this.timer.elapsedTime; // Уже в миллисекундах
+        const minutes = Math.floor(totalMs / 60000);
+        const seconds = Math.floor((totalMs % 60000) / 1000);
+        const milliseconds = Math.floor((totalMs % 1000) / 10); // Две цифры
         
         this.timerDisplay.textContent = 
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
     }
 
     // ===== СЧЕТЧИК ХОДОВ =====
@@ -245,7 +243,9 @@ class CustomUI {
         this.updateStatsDisplay();
         this.updateStatsWindow();
         
-        console.log(`Сборка завершена! Время: ${this.formatTime(solveTime)}, ходов: ${this.moveCount}`);
+        localStorage.removeItem('rubiks_cube_timer_state');
+        this.resetTimer();
+        this.resetMoveCount();
     }
 
      // ===== ПОЛЗУНОК СКОРОСТИ =====
@@ -1239,6 +1239,41 @@ class CustomUI {
         // Если таймер не запущен - запускаем
         if (!this.timer.isRunning) {
             this.startTimer();
+        }
+    }
+    saveTimerState() {
+        const timerState = {
+            startTime: this.timer.startTime,
+            elapsedTime: this.timer.elapsedTime,
+            isRunning: this.timer.isRunning,
+            isPaused: this.timer.isPaused,
+            moveCount: this.moveCount
+        };
+        
+        try {
+            localStorage.setItem('rubiks_cube_timer_state', JSON.stringify(timerState));
+        } catch (e) {
+            console.error("Ошибка сохранения таймера:", e);
+        }
+    }
+
+    loadTimerState() {
+        try {
+            const saved = localStorage.getItem('rubiks_cube_timer_state');
+            if (saved) {
+                const state = JSON.parse(saved);
+                this.timer = {
+                    startTime: state.startTime || 0,
+                    elapsedTime: state.elapsedTime || 0,
+                    isRunning: false, // Всегда сбрасываем при загрузке
+                    isPaused: false
+                };
+                this.moveCount = state.moveCount || 0;
+                this.updateTimerDisplay();
+                this.movesCountElement.textContent = this.moveCount;
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки таймера:", e);
         }
     }
 }
