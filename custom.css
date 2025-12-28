@@ -62,18 +62,17 @@ body {
     flex-direction: column;
     gap: 20px;
     position: relative;
+    width: 100%;
 }
 
 #unity-container {
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
     border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
 }
 
 #unity-canvas {
-    width: 400px !important;
-    height: 400px !important;
+    width: 800px !important;
+    height: 800px !important;
     display: block;
     background: transparent !important;
 }
@@ -191,13 +190,13 @@ body {
 
 /* Кнопка меню */
 .hamburger-btn {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     border: none;
     color: white;
-    font-size: 24px;
+    font-size: 28px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(58, 12, 163, 0.4);
@@ -220,8 +219,8 @@ body {
 }
 
 .mode-btn {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: rgba(67, 97, 238, 0.2);
     border: 2px solid rgba(67, 97, 238, 0.5);
@@ -247,12 +246,12 @@ body {
 }
 
 .mode-btn i {
-    font-size: 20px;
+    font-size: 24px;
     margin-bottom: 4px;
 }
 
 .mode-label {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
 }
 
@@ -310,7 +309,7 @@ body {
     height: 100vh;
     background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
     box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
-    padding: 20px;
+    padding: 15px;
     z-index: 1000;
     transition: left 0.3s ease;
     overflow-y: auto;
@@ -341,8 +340,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgba(76, 201, 240, 0.3);
 }
 
@@ -375,19 +374,21 @@ body {
 }
 
 .menu-section {
-    margin-bottom: 25px;
-    padding-bottom: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .menu-section:last-child {
     border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .menu-section h4 {
-    font-size: 16px;
+    font-size: 14px;
     color: #4cc9f0;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -397,7 +398,7 @@ body {
 .color-schemes {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
 }
 
 .color-option {
@@ -405,7 +406,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    padding: 10px;
+    padding: 8px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -422,8 +423,8 @@ body {
 }
 
 .color-preview {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.3);
 }
@@ -524,7 +525,7 @@ body {
 /* Кнопки меню */
 .menu-btn {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     background: rgba(67, 97, 238, 0.3);
     border: 2px solid rgba(67, 97, 238, 0.5);
     color: #fff;
@@ -537,7 +538,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 5%;
 }
 
 .menu-btn:hover {
@@ -629,6 +630,7 @@ body {
 .overlay-content {
     color: #fff;
     line-height: 1.6;
+    padding-top: 5px;
 }
 
 /* Стили для статистики */
@@ -642,7 +644,7 @@ body {
 .stat-card {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    padding: 20px;
+    padding: 15px;
     text-align: center;
     transition: transform 0.3s ease;
 }
@@ -719,8 +721,8 @@ body {
 }
 
 .help-section {
-    margin-bottom: 25px;
-    padding-bottom: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -836,6 +838,7 @@ body {
     flex-direction: column;
     gap: 15px;
     align-items: center;
+    align-items: flex-start; 
 }
 
 .net-row {
@@ -876,6 +879,12 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+.net-row:last-child {
+    margin-left: 95px; 
+}
+
+
 
 /* Палитра цветов */
 .color-picker-section {
@@ -1134,7 +1143,6 @@ body {
 
 .moves-display {
     display: flex;
-    flex-direction: column;
     align-items: center;
 }
 
@@ -1146,9 +1154,10 @@ body {
 }
 
 .moves-label {
-    font-size: 11px;
+    margin-left: 5px;
+    font-size: 14px;
     color: rgba(255, 255, 255, 0.7);
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 1px;
 }
 

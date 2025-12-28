@@ -34,7 +34,7 @@
         <!-- Центр: Unity -->
         <div class="unity-center">
             <div id="unity-container" class="unity-desktop">
-                <canvas id="unity-canvas" width="600" height="600" tabindex="-1"></canvas>
+                <canvas id="unity-canvas" width="800" height="800" tabindex="-1"></canvas>
                 <div id="unity-loading-bar">
                     <div id="unity-logo"></div>
                     <div id="unity-progress-bar-empty">
@@ -131,7 +131,7 @@
                         <div class="algorithm-circle">
                             <i class="fas fa-layer-group"></i>
                         </div>
-                        <span>Быстрый</span>
+                        <span>Метод Фридрих</span>
                     </div>
                 </div>
             </div>
@@ -305,25 +305,30 @@
             
             <div class="help-section">
                 <h4>Алгоритмы сборки</h4>
-                <p><strong>Быстрый</strong> - последовательность L R L R (4 хода)</p>
-                <p><strong>Простой</strong> - последовательность L L L (3 хода)</p>
+                <p><strong>Слой за слоем (Layer by Layer)</strong> - классический метод сборки, при котором 
+                    кубик собирается послойно, начиная с креста на первом слое, затем углы первого слоя, 
+                    второй слой и наконец третий слой.</p>
+                <p><strong>Метод Фридрих (CFOP)</strong> - продвинутый метод сборки, используемый спидкуберами. 
+                    Состоит из 4 этапов: Cross (крест), F2L (первые два слоя), OLL (ориентация последнего слоя), 
+                    PLL (перестановка последнего слоя)</p>
+            </div>
+            <div class="help-section">
+                <h4>Информация о разработчиках</h4>
+                <p>Лабораторный практикум по дисциплине "Технологии программирования".</p>
+                <p>Тема "Игра "Кубик Рубика"</p>
+                <p>Разработчики:<br>
+                студенты группы 6402-090301D:<br>
+                Капитонов И.М.<br>
+                Шигильчина Я.В.</p>
+                <p>Руководитель:<br>
+                Оплачко Д.С.</p>
+                <p>Самарский университет имени академика С.П. Королева 2025.</p>
             </div>
         </div>
     </div>
     <!-- Окно настройки цветов -->
     <div class="window-overlay" id="colorsOverlay"></div>
     <div class="overlay-window custom-colors-window" id="colorsWindow">
-        <div class="color-buttons">
-            <button class="menu-btn" id="saveCustomSchemeBtn">
-                <i class="fas fa-star"></i> Сохранить как "Свою схему"
-            </button>
-            <button class="menu-btn" id="applyColorBtn">
-                <i class="fas fa-check"></i> Применить к выбранной грани
-            </button>
-            <button class="menu-btn secondary-btn" id="resetColorsBtn">
-                <i class="fas fa-undo"></i> Сбросить к классическим
-            </button>
-        </div>
         <div class="overlay-header">
             <h3><i class="fas fa-palette"></i> Своя настройка цветов</h3>
             <button class="overlay-close-btn" id="closeColorsBtn">
@@ -336,7 +341,7 @@
                 <div class="net-label top">Верх (U)</div>
                 <div class="cube-net">
                     <div class="net-row">
-                        <div class="net-cell" data-face="up" style="background: #FFFFFF;" title="Верхняя грань">
+                        <div class="net-cell .net-row:last-child" data-face="up" style="background: #FFFFFF;" title="Верхняя грань">
                             <div class="cell-label">Верх</div>
                         </div>
                     </div>
@@ -355,7 +360,7 @@
                         </div>
                     </div>
                     <div class="net-row">
-                        <div class="net-cell" data-face="down" style="background: #FF5800;" title="Нижняя грань">
+                        <div class="net-cell .net-row:last-child" data-face="down" style="background: #FF5800;" title="Нижняя грань">
                             <div class="cell-label">Низ</div>
                         </div>
                     </div>
@@ -386,7 +391,6 @@
                     <div class="color-preview-area">
                         <div class="color-preview-box" id="colorPreviewBox" style="background: #FF0000;"></div>
                         <div class="color-info">
-                            <div class="color-hex">HEX: <span id="colorHex">#FF0000</span></div>
                             <div class="color-rgb">RGB: <span id="colorRgb">rgb(255, 0, 0)</span></div>
                         </div>
                     </div>
@@ -412,9 +416,10 @@
                     <i class="fas fa-exclamation-triangle"></i>
                     <span>Цвет слишком похож на уже существующий! Минимальная разница: <span id="minDiff">0</span>%</span>
                 </div>
-                
-                <!-- Кнопки управления -->
                 <div class="color-buttons">
+                    <button class="menu-btn" id="saveCustomSchemeBtn">
+                        <i class="fas fa-star"></i> Сохранить как "Свою схему"
+                    </button>
                     <button class="menu-btn" id="applyColorBtn">
                         <i class="fas fa-check"></i> Применить к выбранной грани
                     </button>
