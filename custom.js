@@ -682,7 +682,6 @@ shuffleCube() {
             const stats = localStorage.getItem('rubiks_cube_stats');
             if (stats) {
                 const loadedStats = JSON.parse(stats);
-                // Сохраняем тестовые данные, если нет сохраненных
                 this.gameStats = {
                     totalSolves: loadedStats.totalSolves || this.gameStats.totalSolves,
                     bestTime: loadedStats.bestTime || this.gameStats.bestTime,
@@ -697,7 +696,6 @@ shuffleCube() {
     }
     
     applySavedSettings() {
-    // Обновляем UI
         document.querySelectorAll('.color-option').forEach(option => {
             option.classList.remove('active');
         });
@@ -708,7 +706,6 @@ shuffleCube() {
         });
         document.querySelector(`.algorithm-option[data-algorithm="${this.currentAlgorithm}"]`)?.classList.add('active');
         
-        // Обновляем ползунок скорости
         if (this.speedSlider) {
             this.speedSlider.setSpeed(this.currentSpeed);
         }
@@ -721,7 +718,6 @@ shuffleCube() {
             }
         });
         
-        // Применяем цветовую схему (после загрузки Unity)
         setTimeout(() => {
             if (this.isReady) {
                 if (this.currentColorScheme === 'custom') {
@@ -733,7 +729,7 @@ shuffleCube() {
         }, 500);
     }
     
-    // ===== КОММУНИКАЦИЯ С UNITY =====
+    // КОММУНИКАЦИЯ С UNITY 
     sendToUnity(method, parameter = '') {
         if (!this.isReady) {
             console.error(`⚠ Не готово! Ждем инициализации Unity. Метод: ${method}`);
@@ -787,12 +783,11 @@ shuffleCube() {
             this.hideHelpWindow();
         });
         
-        // Очистка всей статистики (из окна статистики)
+
         document.getElementById('clearAllStatsBtn')?.addEventListener('click', () => {
             this.clearStats();
         });
         
-        // Добавляем клик на заголовок "Статистика" в меню
         const menuStatsTitle = document.querySelector('.menu-section h4');
         if (menuStatsTitle && menuStatsTitle.textContent.includes('Статистика')) {
             menuStatsTitle.style.cursor = 'pointer';
@@ -835,11 +830,9 @@ shuffleCube() {
         document.getElementById('statsBestTime').textContent = this.formatTime(this.gameStats.bestTime);
         document.getElementById('statsAvgTime').textContent = this.calculateAverageTime();
         
-        // Общее время - исправляем форматирование
         const totalPlayTime = this.gameStats.totalPlayTime || 0;
         document.getElementById('statsTotalPlayTime').textContent = this.formatTime(totalPlayTime);
         
-        // Заполняем таблицу рекордов
         this.fillRecordsTable();
     }
         
@@ -885,7 +878,6 @@ shuffleCube() {
         });
     }
     
-    // Обновляем setSpeed для работы с новыми скоростями
     setSpeed(speed) {
         if (!this.speedOptions.includes(speed)) {
             console.error(`Недопустимая скорость: ${speed}`);
@@ -894,18 +886,15 @@ shuffleCube() {
         
         this.currentSpeed = speed;
         
-        // Обновляем UI точек
         document.querySelectorAll('.speed-dot').forEach(dot => {
             dot.classList.remove('active');
         });
         document.querySelector(`.speed-dot[data-speed="${speed}"]`)?.classList.add('active');
         
-        // Отправляем в Unity
         if (this.isReady) {
             this.sendToUnity('SetCubeSpeed', speed);
         }
         
-        // Сохраняем настройки
         this.saveSettings();
         
         console.log(`Установлена скорость: x${speed}`);
@@ -918,7 +907,6 @@ shuffleCube() {
             this.closeMenu();
         });
         
-        // Закрытие окна
         document.getElementById('closeColorsBtn')?.addEventListener('click', () => {
             this.hideColorsWindow();
         });
@@ -947,7 +935,6 @@ shuffleCube() {
             });
     });
     
-        // Быстрые цвета
         document.querySelectorAll('.quick-color').forEach(colorBtn => {
             colorBtn.addEventListener('click', (e) => {
                 const color = e.currentTarget.dataset.color;
@@ -955,7 +942,6 @@ shuffleCube() {
             });
         });
         
-        // Кнопки
         document.getElementById('applyColorBtn')?.addEventListener('click', () => {
             this.applyColorToFace();
         });
@@ -966,13 +952,10 @@ shuffleCube() {
     }
 
     saveCustomScheme() {
-        // Активируем опцию "Своя схема" в меню
         this.setColorScheme('custom');
         
-        // Закрываем окно настройки
         this.hideColorsWindow();
         
-        // Показываем уведомление
         alert('Своя цветовая схема сохранена!');
         console.log('Своя цветовая схема сохранена:', this.customColors);
     }
@@ -980,39 +963,32 @@ shuffleCube() {
     selectFace(face) {
         this.selectedFace = face;
         
-        // Убираем выделение со всех
         document.querySelectorAll('.net-cell').forEach(cell => {
             cell.classList.remove('selected');
         });
         
-        // Выделяем выбранную
         const selectedCell = document.querySelector(`.net-cell[data-face="${face}"]`);
         if (selectedCell) {
             selectedCell.classList.add('selected');
             
-            // Устанавливаем текущий цвет грани в RGB слайдеры
             const color = this.customColors[face] || '#FFFFFF';
             this.setColorToSliders(color);
         }
     }
 
     setColorToSliders(colorHex) {
-        // Конвертируем HEX в RGB
         const r = parseInt(colorHex.slice(1, 3), 16);
         const g = parseInt(colorHex.slice(3, 5), 16);
         const b = parseInt(colorHex.slice(5, 7), 16);
         
-        // Устанавливаем слайдеры
         document.getElementById('redSlider').value = r;
         document.getElementById('greenSlider').value = g;
         document.getElementById('blueSlider').value = b;
         
-        // Обновляем значения
         document.getElementById('redValue').textContent = r;
         document.getElementById('greenValue').textContent = g;
         document.getElementById('blueValue').textContent = b;
         
-        // Обновляем предпросмотр
         this.updateColorPreview(r, g, b);
     }
 
@@ -1021,12 +997,10 @@ shuffleCube() {
         const g = parseInt(document.getElementById('greenSlider').value);
         const b = parseInt(document.getElementById('blueSlider').value);
         
-        // Обновляем значения
         document.getElementById('redValue').textContent = r;
         document.getElementById('greenValue').textContent = g;
         document.getElementById('blueValue').textContent = b;
         
-        // Обновляем предпросмотр
         this.updateColorPreview(r, g, b);
     }
 
@@ -1038,7 +1012,6 @@ shuffleCube() {
         document.getElementById('colorHex').textContent = hex;
         document.getElementById('colorRgb').textContent = rgbText;
         
-        // Проверяем схожесть с другими цветами
         this.checkColorSimilarity(hex);
     }
 
@@ -1056,33 +1029,26 @@ shuffleCube() {
     applyColorToFace() {
         if (!this.selectedFace) return;
         
-        // Получаем цвет из предпросмотра
         const hexColor = document.getElementById('colorHex').textContent;
         
-        // Проверяем, не слишком ли похож цвет на другие
         if (!this.isColorValid(hexColor)) {
             alert('Цвет слишком похож на уже существующий! Выберите другой оттенок.');
             return;
         }
         
-        // Сохраняем цвет
         this.customColors[this.selectedFace] = hexColor;
         
-        // Сохраняем в localStorage
         this.saveCustomColors();
         
-        // Обновляем отображение
         const selectedCell = document.querySelector(`.net-cell[data-face="${this.selectedFace}"]`);
         if (selectedCell) {
             selectedCell.style.background = hexColor;
         }
         
-        // Применяем пользовательскую схему
         if (this.currentColorScheme === 'custom' && this.isReady) {
             this.sendToUnity('ApplyCustomColors', JSON.stringify(this.customColors));
         }
         
-        // Показываем подтверждение
         const faceNames = {
             up: 'Верхняя',
             left: 'Левая', 
@@ -1094,14 +1060,12 @@ shuffleCube() {
         console.log(`Цвет грани "${faceNames[this.selectedFace]}" изменен на: ${hexColor}`);
     }
 
-    // Проверка схожести цветов
     checkColorSimilarity(colorHex) {
         const rgb1 = this.hexToRgb(colorHex);
         const warningElement = document.getElementById('colorWarning');
         
-        let minDiff = 100; // Максимальная разница в процентах
+        let minDiff = 100;
         
-        // Сравниваем со всеми остальными цветами
         for (const [face, savedColor] of Object.entries(this.customColors)) {
             if (face === this.selectedFace) continue;
             
@@ -1113,8 +1077,7 @@ shuffleCube() {
             }
         }
         
-        // Показываем/скрываем предупреждение
-        if (minDiff < 20) { // Порог 20%
+        if (minDiff < 20) {
             warningElement.style.display = 'flex';
             document.getElementById('minDiff').textContent = minDiff.toFixed(1);
         } else {
@@ -1131,7 +1094,7 @@ shuffleCube() {
             const rgb2 = this.hexToRgb(savedColor);
             const diff = this.calculateColorDifference(rgb1, rgb2);
             
-            if (diff < 15) { // Порог 15% для применения
+            if (diff < 15) {
                 return false;
             }
         }
@@ -1146,20 +1109,15 @@ shuffleCube() {
         return { r, g, b };
     }
 
-    // Формула для расчета разницы цветов (упрощенная версия)
     calculateColorDifference(rgb1, rgb2) {
-        // Используем формулу расстояния в RGB пространстве
         const rDiff = Math.abs(rgb1.r - rgb2.r);
         const gDiff = Math.abs(rgb1.g - rgb2.g);
         const bDiff = Math.abs(rgb1.b - rgb2.b);
         
-        // Максимальное расстояние по каждому каналу - 255
-        const maxDiff = Math.sqrt(255*255 + 255*255 + 255*255); // ~441
+        const maxDiff = Math.sqrt(255*255 + 255*255 + 255*255);
         
-        // Текущее расстояние
         const currentDiff = Math.sqrt(rDiff*rDiff + gDiff*gDiff + bDiff*bDiff);
         
-        // Процент различия
         return (currentDiff / maxDiff) * 100;
     }
 
@@ -1174,10 +1132,8 @@ shuffleCube() {
             down: '#FF5800'
         };
         
-        // Сохраняем сброс
         this.saveCustomColors();
         
-        // Обновляем отображение
         Object.entries(this.customColors).forEach(([face, color]) => {
             const cell = document.querySelector(`.net-cell[data-face="${face}"]`);
             if (cell) {
@@ -1185,12 +1141,10 @@ shuffleCube() {
             }
         });
         
-        // Обновляем текущий выбор
         if (this.selectedFace) {
             this.setColorToSliders(this.customColors[this.selectedFace]);
         }
         
-        // Если выбрана пользовательская схема - обновляем в Unity
         if (this.currentColorScheme === 'custom' && this.isReady) {
             this.applyCustomColorsToUnity();
         }
@@ -1201,7 +1155,6 @@ shuffleCube() {
         document.getElementById('colorsOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
         
-        // Выбираем первую грань по умолчанию
         this.selectFace('up');
     }
 
@@ -1215,7 +1168,6 @@ shuffleCube() {
         if (this.getCurrentMode() === 'auto' && !this.userInteracted) {
             this.userInteracted = true;
             
-            // Находим кнопку ручного режима и кликаем
             const manualBtn = document.querySelector('.mode-btn[data-mode="manual"]');
             if (manualBtn) {
                 manualBtn.click();
@@ -1239,7 +1191,6 @@ shuffleCube() {
             return;
         }
         
-        // Отправляем пользовательские цвета в Unity
         this.sendToUnity('ApplyCustomColors', JSON.stringify(this.customColors));
         console.log("Пользовательские цвета отправлены в Unity:", this.customColors);
     }
@@ -1247,15 +1198,13 @@ shuffleCube() {
     onCubeMove(moveData) {
         console.log("Ход выполнен, данные:", moveData);
         
-        // ИГНОРИРУЕМ ходы во время перемешивания
         if (this.isShuffling) {
             console.log("Ход во время перемешивания - игнорируем для таймера");
             return;
         }
         
-        // Инкрементируем счетчик ходов
         this.incrementMoveCount();
-        this.saveTimerState(); // Сохраняем состояние
+        this.saveTimerState(); 
         
         // Автоматически запускаем таймер при первом ходе в ручном режиме
         if (this.getCurrentMode() === 'manual' && !this.timer.isRunning && !this.isCubeSolved) {
@@ -1273,7 +1222,6 @@ shuffleCube() {
             console.log("Таймер возобновлен при ходе");
         }
         
-        // Сохраняем состояние
         this.saveTimerState();
     }
     saveTimerState() {
@@ -1300,12 +1248,11 @@ shuffleCube() {
                 this.timer = {
                     startTime: state.startTime || 0,
                     elapsedTime: state.elapsedTime || 0,
-                    isRunning: false, // Всегда сбрасываем при загрузке
+                    isRunning: false,
                     isPaused: false
                 };
                 this.moveCount = state.moveCount || 0;
                 
-                // Проверяем, что элементы существуют
                 if (this.timerDisplay) {
                     this.updateTimerDisplay();
                 }
@@ -1322,7 +1269,6 @@ shuffleCube() {
         const canvas = document.getElementById('unity-canvas');
         const container = document.getElementById('unity-container');
         
-        // Рассчитать размер на основе экрана
         const maxWidth = Math.min(window.innerWidth * 0.6, 600);
         const maxHeight = Math.min(window.innerHeight * 0.6, 600);
         const size = Math.min(maxWidth, maxHeight);
@@ -1330,7 +1276,6 @@ shuffleCube() {
         canvas.style.width = size + 'px';
         canvas.style.height = size + 'px';
         
-        // Добавить отступ сверху для таймера
         const statsPanel = document.querySelector('.game-stats-panel');
         if (statsPanel) {
             const statsHeight = statsPanel.offsetHeight;
@@ -1370,7 +1315,6 @@ class SpeedSlider {
     }
     
     setupEventListeners() {
-        // Перетаскивание ползунка
         this.thumb.addEventListener('mousedown', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -1388,12 +1332,10 @@ class SpeedSlider {
             document.addEventListener('mouseup', onMouseUp);
         });
         
-        // Клик по треку
         this.slider.addEventListener('click', (e) => {
             this.setSpeedFromPosition(e.clientX);
         });
         
-        // Клик по маркерам
         this.markers.forEach((marker, index) => {
             marker.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1408,12 +1350,10 @@ class SpeedSlider {
         let position = (clientX - rect.left) / rect.width;
         position = Math.max(0, Math.min(1, position));
         
-        // Увеличиваем зону захвата для каждой точки (вместо 25%)
-        const zoneSize = 0.15; // 15% от длины трека в каждую сторону от точки
+        const zoneSize = 0.15;
         
-        // Проверяем, попадает ли клик в зону какой-либо точки
         for (let i = 0; i < this.speeds.length; i++) {
-            const markerPos = i / (this.speeds.length - 1); // 0, 0.33, 0.66, 1
+            const markerPos = i / (this.speeds.length - 1);
             const distance = Math.abs(position - markerPos);
             
             if (distance <= zoneSize) {
