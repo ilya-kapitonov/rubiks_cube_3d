@@ -17,23 +17,15 @@ body {
 }
 
 /* Основной контейнер */
-/* .app-container {
+.app-container {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     min-height: 100vh;
     position: relative;
-} */
-
-.app-container {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    width: 100%;
-    min-height: 100vh;
-    position: relative;
-    padding: 0;
+    padding: 20px;
+    padding-bottom: 100px;
 }
 
 /* ЛЕВАЯ ПАНЕЛЬ */
@@ -70,9 +62,8 @@ body {
     gap: 20px;
     position: relative;
     width: 100%;
-    margin: 0 auto;
+    margin-top: 0px;
     padding-top: 100px;
-    padding-bottom: 120px;
 }
 
 #unity-container {
@@ -84,23 +75,11 @@ body {
     align-items: center;
     width: 100%;
     height: auto;
-    margin: 0 auto;
-    min-height: 500px;
 }
 
-/* #unity-canvas {
+#unity-canvas {
     width: 800px !important;
     height: 600px !important;
-    display: block;
-    background: transparent !important;
-    margin: 0 auto; 
-} */
-
-#unity-canvas {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 600px;
-    max-height: 600px;
     display: block;
     background: transparent !important;
     margin: 0 auto; 
@@ -593,7 +572,7 @@ body {
     gap: 10px;
 }
 
-/*  ОКОШКИ ПО ЦЕНТРУ */
+/* ОКОШКИ ПО ЦЕНТРУ */
 .overlay-window {
     position: fixed;
     top: 50%;
