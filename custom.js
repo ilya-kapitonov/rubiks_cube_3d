@@ -3,6 +3,7 @@ class CustomUI {
         this.unityInstance = null;
         this.isReady = false;
         this.userInteracted = false;
+        this.isShuffling = false;
         
         console.log("CustomUI создан");
         
@@ -531,22 +532,35 @@ class CustomUI {
     }
     
     // ===== ОСНОВНЫЕ МЕТОДЫ =====
-    shuffleCube() {
-        if (!this.isReady) {
-            console.warn("Система ещё не готова");
-            return;
+shuffleCube() {
+    if (!this.isReady) {
+        console.warn("Система ещё не готова");
+        return;
+    }
+    
+    if (confirm('Перемешать кубик? Текущий прогресс будет сброшен.')) {
+        console.log("Начинаем перемешивание...");
+        
+        // ОСТАНАВЛИВАЕМ таймер перед перемешиванием
+        if (this.timer.isRunning) {
+            this.stopTimer();
         }
         
-        if (confirm('Перемешать кубик? Текущий прогресс будет сброшен.')) {
-            console.log("Начинаем перемешивание...");
-            this.sendToUnity('ShuffleCube');
-            this.userInteracted = false;
-
-            this.resetTimer();
-            this.resetMoveCount();
-            this.isCubeSolved = false;
-        }
+        // Сбрасываем счётчики
+        this.resetTimer();
+        this.resetMoveCount();
+        this.isCubeSolved = false;
+        
+        // Флаг, что идет перемешивание
+        this.isShuffling = true;
+        
+        // Отправляем команду в Unity
+        this.sendToUnity('ShuffleCube');
+        this.userInteracted = false;
+        
+        console.log("Начато перемешивание, таймер остановлен");
     }
+}
     
     undoMove() {
         if (!this.isReady) {
@@ -1260,6 +1274,12 @@ class CustomUI {
     onCubeMove(moveData) {
         console.log("Ход выполнен, данные:", moveData);
         
+        // ИГНОРИРУЕМ ходы во время перемешивания
+        if (this.isShuffling) {
+            console.log("Ход во время перемешивания - игнорируем для таймера");
+            return;
+        }
+        
         // Инкрементируем счетчик ходов
         this.incrementMoveCount();
         this.saveTimerState(); // Сохраняем состояние
@@ -1343,6 +1363,18 @@ class CustomUI {
             const statsHeight = statsPanel.offsetHeight;
             container.style.marginTop = (statsHeight + 20) + 'px';
         }
+    }
+
+    onShuffleComplete() {
+        console.log("Перемешивание завершено");
+        this.isShuffling = false;
+        
+        // Если в ручном режиме - не запускаем таймер автоматически
+        // Пользователь сам должен начать сборку
+        
+        // Обнуляем счётчик ходов, который накопился при перемешивании
+        this.resetMoveCount();
+        console.log("Счётчик ходов сброшен после перемешивания");
     }
 }
 
@@ -1576,7 +1608,12 @@ window.startTimerNow = function() {
         console.log("Таймер принудительно запущен");
     }
 }
-
+window.onShuffleComplete = function() {
+    console.log("Получено уведомление о завершении перемешивания");
+    if (window.customUI) {
+        window.customUI.onShuffleComplete();
+    }
+};
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
