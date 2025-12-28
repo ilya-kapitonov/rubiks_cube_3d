@@ -201,7 +201,21 @@ class CustomUI {
     // ===== СЧЕТЧИК ХОДОВ =====
     incrementMoveCount() {
         this.moveCount++;
-        this.movesCountElement.textContent = this.moveCount;
+        console.log("Счетчик ходов увеличен:", this.moveCount);
+        
+        // Сохраняем в localStorage
+        this.saveTimerState();
+        
+        // Обновляем отображение, если элемент существует
+        if (this.movesCountElement) {
+            this.movesCountElement.textContent = this.moveCount;
+        } else {
+            // Пытаемся найти элемент
+            this.movesCountElement = document.getElementById('movesCount');
+            if (this.movesCountElement) {
+                this.movesCountElement.textContent = this.moveCount;
+            }
+        }
     }
 
     resetMoveCount() {
@@ -313,11 +327,18 @@ class CustomUI {
     }
     
     handleModeChange(oldMode, newMode) {
+        // Сохраняем режим
+        this.savedMode = newMode;
+        this.saveSettings();
+        
+        console.log(`Режим изменен: ${oldMode} → ${newMode}`);
+        
         // Если переключаемся из авторежима в ручной - останавливаем автосборку
         if (oldMode === 'auto' && newMode === 'manual') {
             this.stopAutoSolve();
+            
             // При переключении в ручной режим запускаем таймер
-            if (!this.timer.isRunning) {
+            if (!this.timer.isRunning && !this.isCubeSolved) {
                 this.startTimer();
             }
         }
@@ -326,7 +347,13 @@ class CustomUI {
             // При начале автосборки сбрасываем таймер
             this.resetTimer();
             this.resetMoveCount();
-            this.startAutoSolve();
+            
+            // ЗАКОММЕНТИРУЙТЕ на время тестирования
+            // this.startAutoSolve();
+            
+            // Вместо этого показываем сообщение
+            alert("Автосборка временно отключена из-за ошибок в Unity");
+            console.log("Автосборка пропущена (временно отключена)");
         }
     }
     
@@ -574,11 +601,19 @@ class CustomUI {
     
     // ===== СТАТИСТИКА =====
     updateStatsDisplay() {
-        document.getElementById('totalSolves').textContent = this.gameStats.totalSolves;
-        document.getElementById('bestTime').textContent = this.formatTime(this.gameStats.bestTime);
-        
-        // Если элемент называется totalPlayTime
+        // Проверяем существование элементов
+        const totalSolvesElement = document.getElementById('totalSolves');
+        const bestTimeElement = document.getElementById('bestTime');
         const totalPlayTimeElement = document.getElementById('totalPlayTime');
+        
+        if (totalSolvesElement) {
+            totalSolvesElement.textContent = this.gameStats.totalSolves;
+        }
+        
+        if (bestTimeElement) {
+            bestTimeElement.textContent = this.formatTime(this.gameStats.bestTime);
+        }
+        
         if (totalPlayTimeElement) {
             totalPlayTimeElement.textContent = this.formatTime(this.gameStats.totalPlayTime || 0);
         }
@@ -1234,19 +1269,23 @@ class CustomUI {
         this.saveTimerState(); // Сохраняем состояние
         
         // Автоматически запускаем таймер при первом ходе в ручном режиме
-        if (!this.timer.isRunning && !this.isAutoSolving) {
-            console.log("Автоматический запуск таймера при первом ходе");
+        if (this.getCurrentMode() === 'manual' && !this.timer.isRunning && !this.isCubeSolved) {
+            console.log("Автозапуск таймера при первом ходе в ручном режиме");
             this.startTimer();
         }
         
         // Если таймер на паузе - возобновляем
-        if (this.timer.isPaused) {
+        if (this.timer.isPaused && this.getCurrentMode() === 'manual') {
             this.timer.isPaused = false;
             if (this.timerPauseBtn) {
                 this.timerPauseBtn.querySelector('i').className = 'fas fa-pause';
                 this.timerPauseBtn.title = 'Пауза';
             }
+            console.log("Таймер возобновлен при ходе");
         }
+        
+        // Сохраняем состояние
+        this.saveTimerState();
     }
     saveTimerState() {
         const timerState = {
@@ -1276,8 +1315,15 @@ class CustomUI {
                     isPaused: false
                 };
                 this.moveCount = state.moveCount || 0;
-                this.updateTimerDisplay();
-                this.movesCountElement.textContent = this.moveCount;
+                
+                // Проверяем, что элементы существуют
+                if (this.timerDisplay) {
+                    this.updateTimerDisplay();
+                }
+                
+                if (this.movesCountElement) {
+                    this.movesCountElement.textContent = this.moveCount;
+                }
             }
         } catch (e) {
             console.error("Ошибка загрузки таймера:", e);
@@ -1502,6 +1548,38 @@ window.onCubeMove = function(moveData) {
         window.customUI.onCubeMove(moveData);
     }
 };
+
+// Функция для тестирования из консоли
+window.debugTimer = function() {
+    if (window.customUI) {
+        console.log("=== ДЕБАГ ТАЙМЕРА ===");
+        console.log("Режим:", window.customUI.getCurrentMode());
+        console.log("Таймер работает:", window.customUI.timer.isRunning);
+        console.log("Таймер на паузе:", window.customUI.timer.isPaused);
+        console.log("Прошедшее время:", window.customUI.timer.elapsedTime);
+        console.log("Счетчик ходов:", window.customUI.moveCount);
+        console.log("Элемент таймера:", window.customUI.timerDisplay);
+        console.log("Элемент счетчика:", window.customUI.movesCountElement);
+        
+        // Принудительно обновляем отображение
+        window.customUI.updateTimerDisplay();
+    }
+}
+
+window.testMove = function() {
+    if (window.customUI) {
+        window.customUI.onCubeMove("test_move");
+        console.log("Тестовый ход выполнен. Счетчик:", window.customUI.moveCount);
+    }
+}
+
+window.startTimerNow = function() {
+    if (window.customUI) {
+        window.customUI.startTimer();
+        console.log("Таймер принудительно запущен");
+    }
+}
+
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
