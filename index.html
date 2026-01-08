@@ -34,7 +34,7 @@
         <!-- Центр: Unity -->
         <div class="unity-center">
             <div id="unity-container" class="unity-desktop">
-                <canvas id="unity-canvas" width="600" height="600" tabindex="-1"></canvas>
+                <canvas id="unity-canvas" width="800" height="600" tabindex="-1"></canvas>
                 <div id="unity-loading-bar">
                     <div id="unity-logo"></div>
                     <div id="unity-progress-bar-empty">
@@ -191,7 +191,7 @@
                 progressBarFull.style.width = 100 * progress + "%";
             }).then((unityInstance) => {
                 loadingBar.style.display = "none";
-                console.log("✓ Unity загружен успешно");
+                console.log("Unity загружен успешно");
                 
                 // Сохраняем instance
                 window.unityInstance = unityInstance;
@@ -332,7 +332,8 @@
             <div class="cube-net-container">
                 <div class="cube-net">
                     <div class="net-row">
-                        <div class="net-cell .net-row:first-child" data-face="up" style="background: #FFFFFF;" title="Верхняя грань">
+                        <div class="net-cell empty-cell"></div>
+                        <div class="net-cell" data-face="up" style="background: #FFFFFF;" title="Верхняя грань">
                             <div class="cell-label">Верх</div>
                         </div>
                     </div>
@@ -351,7 +352,8 @@
                         </div>
                     </div>
                     <div class="net-row">
-                        <div class="net-cell .net-row:last-child" data-face="down" style="background: #FF5800;" title="Нижняя грань">
+                        <div class="net-cell empty-cell"></div>
+                        <div class="net-cell" data-face="down" style="background: #FF5800;" title="Нижняя грань">
                             <div class="cell-label">Низ</div>
                         </div>
                     </div>
@@ -382,7 +384,6 @@
                     <div class="color-preview-area">
                         <div class="color-preview-box" id="colorPreviewBox" style="background: #FF0000;"></div>
                         <div class="color-info">
-                            <div class="color-hex">HEX: <span id="colorHex">#FF0000</span></div>
                             <div class="color-rgb">RGB: <span id="colorRgb">rgb(255, 0, 0)</span></div>
                         </div>
                     </div>

@@ -1265,23 +1265,6 @@ shuffleCube() {
             console.error("Ошибка загрузки таймера:", e);
         }
     }
-    // resizeCanvas() {
-    //     const canvas = document.getElementById('unity-canvas');
-    //     const container = document.getElementById('unity-container');
-        
-    //     const maxWidth = Math.min(window.innerWidth * 0.6, 600);
-    //     const maxHeight = Math.min(window.innerHeight * 0.6, 600);
-    //     const size = Math.min(maxWidth, maxHeight);
-        
-    //     canvas.style.width = size + 'px';
-    //     canvas.style.height = size + 'px';
-        
-    //     const statsPanel = document.querySelector('.game-stats-panel');
-    //     if (statsPanel) {
-    //         const statsHeight = statsPanel.offsetHeight;
-    //         container.style.marginTop = (statsHeight + 20) + 'px';
-    //     }
-    // }
 
     onShuffleComplete() {
         console.log("Перемешивание завершено");
