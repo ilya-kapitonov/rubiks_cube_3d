@@ -16,6 +16,7 @@ body {
     align-items: center;
 }
 
+
 /* Основной контейнер */
 .app-container {
     display: flex;
@@ -24,8 +25,8 @@ body {
     width: 100%;
     min-height: 100vh;
     position: relative;
-    padding: 20px;
-    padding-bottom: 100px;
+    padding: 30px;
+    padding-bottom: 70px;
 }
 
 /* ЛЕВАЯ ПАНЕЛЬ */
@@ -190,8 +191,8 @@ body {
 
 /* Кнопка меню */
 .hamburger-btn {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     border: none;
@@ -219,8 +220,8 @@ body {
 }
 
 .mode-btn {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: rgba(67, 97, 238, 0.2);
     border: 2px solid rgba(67, 97, 238, 0.5);
@@ -840,6 +841,13 @@ body {
 .net-row {
     display: flex;
     gap: 15px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.net-row:first-child,
+.net-row:last-child {
+    margin-left: 95px;
 }
 
 .net-cell {
