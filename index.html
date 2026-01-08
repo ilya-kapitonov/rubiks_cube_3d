@@ -191,7 +191,7 @@
                 progressBarFull.style.width = 100 * progress + "%";
             }).then((unityInstance) => {
                 loadingBar.style.display = "none";
-                console.log("Unity загружен успешно");
+                console.log("✓ Unity загружен успешно");
                 
                 // Сохраняем instance
                 window.unityInstance = unityInstance;
@@ -332,7 +332,7 @@
             <div class="cube-net-container">
                 <div class="cube-net">
                     <div class="net-row">
-                        <div class="net-cell net-row:first-child" data-face="up" style="background: #FFFFFF;" title="Верхняя грань">
+                        <div class="net-cell .net-row:first-child" data-face="up" style="background: #FFFFFF;" title="Верхняя грань">
                             <div class="cell-label">Верх</div>
                         </div>
                     </div>
@@ -351,7 +351,7 @@
                         </div>
                     </div>
                     <div class="net-row">
-                        <div class="net-cell net-row:last-child" data-face="down" style="background: #FF5800;" title="Нижняя грань">
+                        <div class="net-cell .net-row:last-child" data-face="down" style="background: #FF5800;" title="Нижняя грань">
                             <div class="cell-label">Низ</div>
                         </div>
                     </div>
