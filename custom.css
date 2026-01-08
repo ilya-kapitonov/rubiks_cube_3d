@@ -835,19 +835,16 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .net-row {
     display: flex;
     gap: 15px;
-    justify-content: flex-start;
-    align-items: center;
 }
 
-.net-row:first-child,
-.net-row:last-child {
-    padding-left: 95px;
+.top-row, .bottom-row {
+    margin-left: 95px;
 }
 
 .net-cell {
