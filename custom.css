@@ -835,15 +835,18 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .net-row {
     display: flex;
     gap: 15px;
+    justify-content: flex-start;
+    align-items: center;
 }
 
-.top-row, .bottom-row {
+.net-row:first-child,
+.net-row:last-child {
     margin-left: 95px;
 }
 
